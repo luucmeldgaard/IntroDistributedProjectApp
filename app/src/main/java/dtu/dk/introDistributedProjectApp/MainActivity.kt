@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
 import dtu.dk.introDistributedProjectApp.mvvm.topBar.TopBar
 import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundView
@@ -32,6 +33,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var applicationRepository: ApplicationRepository
+
+    @Inject
+    lateinit var tupleSpaceConnection: TupleSpaceConnection
 
     @Inject
     lateinit var gameRepository: GameRepository

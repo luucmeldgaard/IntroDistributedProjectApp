@@ -20,7 +20,7 @@ class RoundViewModel @Inject constructor(
     private val _uiModel = MutableStateFlow(RoundUiModel())
     val uiModel: StateFlow<RoundUiModel> = _uiModel.asStateFlow()
 
-    val gameState: StateFlow<GameState> = gameRepository.gameState
+    private val gameState: StateFlow<GameState> = gameRepository.gameState
 
     init {
 

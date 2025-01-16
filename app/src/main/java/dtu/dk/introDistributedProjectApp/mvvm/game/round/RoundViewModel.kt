@@ -44,4 +44,29 @@ class RoundViewModel @Inject constructor(
         }
     }
 
+    fun onAnswerSelected(answer: Int) {
+
+        var selectedAnswer = answer + 1 // To account for 0-based index
+
+        if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected
+            selectedAnswer = 0 // deselects all by setting to 0
+        }
+
+        //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
+
+        viewModelScope.launch {
+            _uiModel.update { currentState ->
+                currentState.copy(
+                    selectedAnswer = selectedAnswer
+                )
+            }
+        }
+    }
+
+    fun onTimerFinished() {
+        viewModelScope.launch {
+            //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
+        }
+    }
+
 }

@@ -9,5 +9,12 @@ import javax.inject.Singleton
 class TupleSpaceConnection @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    
+    fun retrieveGameState() {
+        TODO("Not yet implemented")
+    }
+
+    fun sendAnswer(selectedAnswer: Int) {
+
+    }
+
 }

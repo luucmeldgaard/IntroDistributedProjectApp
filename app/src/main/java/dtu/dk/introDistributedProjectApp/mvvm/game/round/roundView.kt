@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import dtu.dk.introDistributedProjectApp.Greeting
+import dtu.dk.introDistributedProjectApp.R
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
 import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
 import dtu.dk.introDistributedProjectApp.ui.theme.ChineseViolet
@@ -69,7 +71,8 @@ fun RoundView(
     ) {
         Column(
             modifier = Modifier
-                .padding(top = 20.dp),
+                .padding(top = 20.dp)
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.Top,
         ) {
             Row(
@@ -83,12 +86,21 @@ fun RoundView(
                     Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)
                 }
 
-                Text(text = "14", color = Color.White)
+                Text(text = roundUiModel.currentRound.toString(), color = Color.White)
 
-                IconButton(onClick = { }) {
-                    Icon(Icons.TwoTone.Favorite, contentDescription = null, tint = Color.White)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = { }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.trophy),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Text(text = roundUiModel.currentScore.toString(), color = Color.White)
                 }
-
             }
         }
 
@@ -107,7 +119,7 @@ fun RoundView(
                     .padding(horizontal = 14.dp),
             ) {
                 Text(
-                    text = "Question 3",
+                    text = "Question " + roundUiModel.currentRound.toString(),
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -115,11 +127,7 @@ fun RoundView(
                         .fillMaxWidth(),
                 )
                 Text(
-                    text = "When a man has vigorous, unprotected intercourse with a woman. " +
-                            "He then her eats out to the point of vomiting. After filling her vagina with vomit, " +
-                            "the man then uses his home economics skills to sew shut the woman's vagina. " +
-                            "After several weeks of \"brewing,\" the man, or perhaps another very impatient man, " +
-                            "cuts open the stitches, and uses the mixture to make a pie and eat it with mash potato",
+                    text = roundUiModel.currentQuestion.question,
                     color = Color.White,
                     fontSize = 16.sp,
                     fontStyle = FontStyle.Italic,
@@ -136,39 +144,26 @@ fun RoundView(
                     .padding(horizontal = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                FilledTonalButton(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(ChineseViolet),
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                    onClick = { /*TODO*/ },
-                ) {
-                    Text(text = "Sad Meep", fontSize = 12.6.sp)
-                }
-                FilledTonalButton(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(AirForceBlue),
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                    onClick = { /*TODO*/ },
-                ) {
-                    Text(text = "Crockpie", fontSize = 12.6.sp)
-                }
-                FilledTonalButton(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(MyrtleGreen),
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                    onClick = { /*TODO*/ },
-                ) {
-                    Text(text = "Guston Guston", fontSize = 12.6.sp)
+
+                repeat(roundUiModel.currentQuestion.answers.size) { index ->
+                    FilledTonalButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        colors = if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0) ButtonDefaults.buttonColors(roundUiModel.buttonColors[index]) else ButtonDefaults.buttonColors(
+                            Color.DarkGray),
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                        onClick = {
+                            roundViewModel.onAnswerSelected(index)
+                        },
+                    ) {
+                        Text(text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp)
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.size(36.dp))
     }
-
-
 }
 

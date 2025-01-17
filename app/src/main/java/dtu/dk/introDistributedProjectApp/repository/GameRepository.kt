@@ -186,13 +186,15 @@ class GameRepository @Inject constructor(
     }
 
     fun sendAnswer(answer: String) {
-        val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
-        _gameStateLocal.update { currentState ->
-            currentState.copy(chosenAnswer = answer)
+        CoroutineScope(Dispatchers.IO).launch {
+            val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
+            _gameStateLocal.update { currentState ->
+                currentState.copy(chosenAnswer = answer)
+            }
+            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
+            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+            Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
         }
-        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
-        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
-        Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
     }
 
 }

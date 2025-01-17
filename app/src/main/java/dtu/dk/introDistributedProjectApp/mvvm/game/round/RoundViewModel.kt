@@ -2,6 +2,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
@@ -88,6 +89,8 @@ class RoundViewModel @Inject constructor(
                     selectedAnswer = selectedAnswer
                 )
             }
+        }
+        viewModelScope.launch {
             gameRepository.sendAnswer(uiModel.value.currentQuestion.answers[selectedAnswer - 1])
         }
     }

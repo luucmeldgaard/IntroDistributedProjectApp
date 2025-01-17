@@ -1,9 +1,9 @@
 package dtu.dk.introDistributedProjectApp.data
 
 enum class GameState(val displayName: String) {
-    STARTING("SHOWING"),
+    SHOWING("SHOWING"),
     ANSWERING("ANSWERING"),
-    FINISHED("FINAL");
+    FINAL("FINAL");
 
     companion object {
         // Function to get an enum constant from the string property

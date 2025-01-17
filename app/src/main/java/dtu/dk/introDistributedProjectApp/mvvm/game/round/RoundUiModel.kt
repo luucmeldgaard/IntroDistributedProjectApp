@@ -6,7 +6,7 @@ import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
 import dtu.dk.introDistributedProjectApp.ui.theme.ChineseViolet
 import dtu.dk.introDistributedProjectApp.ui.theme.MyrtleGreen
 
-data class RoundUiModel (
+data class RoundUiModel(
     val currentScore: Int = 2,
     val currentQuestion: Question = Question("When a man has vigorous, unprotected intercourse with a woman. " +
             "He then her eats out to the point of vomiting. After filling her vagina with vomit, " +
@@ -17,5 +17,6 @@ data class RoundUiModel (
     val secondsLeft: Int = 14,
     val finished: Boolean = false,
     val buttonColors: List<Color> = listOf(ChineseViolet, AirForceBlue, MyrtleGreen),
-    val selectedAnswer: Int = 0
+    val selectedAnswer: Int = 0,
+    val correctAnswer: String = "",
 )

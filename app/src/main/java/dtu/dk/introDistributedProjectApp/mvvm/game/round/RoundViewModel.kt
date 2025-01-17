@@ -3,6 +3,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,27 +21,54 @@ class RoundViewModel @Inject constructor(
     private val _uiModel = MutableStateFlow(RoundUiModel())
     val uiModel: StateFlow<RoundUiModel> = _uiModel.asStateFlow()
 
-    private val gameStateLocal: StateFlow<GameStateLocal> = gameRepository.gameStateLocal
-
     init {
-
-    }
-
-    private fun observeGameState() {
         viewModelScope.launch {
-            gameStateLocal.collect { gameState ->
+            gameRepository.gameStateLocal.collect { gameState ->
                 onGameStateUpdate(gameState)
             }
         }
     }
 
     private fun onGameStateUpdate(gameStateLocal: GameStateLocal) {
-        /*if (gameStateLocal.question.isNotEmpty()) {
-            _uiModel.update { currentState ->
-                currentState.copy(
-                    currentQuestion = gameStateLocal.question.poll()
-                )
+
+        _uiModel.update { currentState ->
+            currentState.copy(
+                currentQuestion = gameStateLocal.question,
+                correctAnswer = gameStateLocal.correctAnswer,
+                currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
+            )
+        }
+
+        /*if (gameStateLocal.state != currentState) {
+            if (currentState == GameState.SHOWING && gameStateLocal.state == GameState.ANSWERING) {
+                clear()
             }
+        }
+
+        for (player in gameStateLocal.players) {
+            if (player.id == gameStateLocal.userUUID.toString()) {
+                _uiModel.update { currentState ->
+                    currentState.copy(
+                        currentScore = player.score
+                    )
+                }
+            }
+        }
+
+        for (i in 0 until gameStateLocal.question.answers.size) {
+            if (gameStateLocal.correctAnswer == uiModel.value.currentQuestion.answers[i]) {
+                _uiModel.update { currentState ->
+                    currentState.copy(
+                        correctAnswer = i + 1
+                    )
+                }
+            }
+        }
+
+        _uiModel.update { currentState ->
+            currentState.copy(
+                currentQuestion = gameStateLocal.question
+            )
         }*/
     }
 
@@ -60,12 +88,23 @@ class RoundViewModel @Inject constructor(
                     selectedAnswer = selectedAnswer
                 )
             }
+            gameRepository.sendAnswer(uiModel.value.currentQuestion.answers[selectedAnswer - 1])
         }
     }
 
     fun onTimerFinished() {
         viewModelScope.launch {
             //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
+        }
+    }
+
+    fun clear() {
+        viewModelScope.launch {
+            _uiModel.update { currentState ->
+                currentState.copy(
+                    selectedAnswer = 0,
+                )
+            }
         }
     }
 

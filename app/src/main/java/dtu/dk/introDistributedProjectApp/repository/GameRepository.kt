@@ -3,9 +3,12 @@ package dtu.dk.introDistributedProjectApp.repository
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
+import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.data.SpaceName
 import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
+import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundUiModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +18,8 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.update
+import dtu.dk.introDistributedProjectApp.data.Player
 
 @Singleton
 class GameRepository @Inject constructor(
@@ -28,13 +33,64 @@ class GameRepository @Inject constructor(
     init {
         Log.i("GameRepository", "GameRepository created")
 
+        val player = Player(name = "tester", id = gameStateLocal.value.userUUID.toString(), score = 0)
+        val otherPlayer = Player(name = "tester2", id = "tester2", score = 0)
+
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
-            //var result: String? = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
-            //Log.i("GameRepository", "Retrieved tuple: $result")
-            updateTuple(SpaceName.PLAYER, "test", "tester", 1)
-            //result = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
-            //Log.i("GameRepository", "Retrieved tuple: $result")
+            updateTuple(SpaceName.PLAYER, player.name, gameStateLocal.value.userUUID.toString(), player.score)
+            updateTuple(SpaceName.PLAYER, "test2", "tester2", 2)
+
+            while (true) {
+                val currentGameState = gameStateLocal.value.state
+                val gameState: List<String>? = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
+                Log.i("GameRepository", "Gamestate is: $gameState")
+                Thread.sleep(1000)
+
+                if (gameState != null) {
+                    _gameStateLocal.update { currentState ->
+                        currentState.copy(state = GameState.fromDisplayName(gameState[0])!!)
+                    }
+                }
+                if (currentGameState != gameStateLocal.value.state) {
+                    if (gameStateLocal.value.state == GameState.ANSWERING) {
+                        Log.i("GameRepository", "ANSWERING STATE")
+                        nextQuestion()
+                    }
+                    else if (currentGameState == GameState.SHOWING) {
+                        Log.i("GameRepository", "SHOWING STATE")
+                        if (gameStateLocal.value.chosenAnswer == "") {
+                            Log.i("GameRepository", "No answer was chosen. ")
+                            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
+                            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+                        }
+
+                        val correctAnswer: List<String>? = retrieveItemFromSpace(SpaceName.ANSWER, String::class.java)
+                        if (correctAnswer != null) {
+                            _gameStateLocal.update { currentState ->
+                                currentState.copy(correctAnswer = correctAnswer[0])
+                            }
+                        }
+
+                        for (player in _gameStateLocal.value.players) {
+                            if (player.id == "tester") {
+                                _gameStateLocal.update { currentState ->
+                                    currentState.copy(
+                                        players = currentState.players.map {
+                                            if (it.id == "tester") {
+                                                it.copy(score = tupleSpaceConnection.queryScoreUpdate(gameStateLocal.value.userUUID.toString()))
+                                            } else {
+                                                it
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
         }
     }
 
@@ -47,30 +103,19 @@ class GameRepository @Inject constructor(
         }
     }
 
-    private suspend fun <T> retrieveItemFromSpace(spaceName: SpaceName, type: Class<T>): T? {
+    private suspend fun <T> retrieveItemFromSpace(spaceName: SpaceName, vararg types: Class<*>): List<T>? {
         while (this::tupleSpaceConnection.isInitialized) {
             try {
-                // Retrieve tuple from remote space
-                val result = tupleSpaceConnection.queryTuple(spaceName, String::class.java)
-                val firstResult = result[0]
-                if (result != null && result.isNotEmpty()) {
-                    // Cast the first element to the specified type
-                    val tupleElement = result[0]
-                    if (type.isInstance(tupleElement)) {
-                        @Suppress("UNCHECKED_CAST")
-                        return tupleElement as T
-                    } else {
-                        println("Unexpected type: ${tupleElement?.javaClass}")
-                    }
-                } else {
-                    println("No tuple found in  space.")
-                }
+                // Retrieve tuple from the remote space
+                val result = tupleSpaceConnection.queryTuple(spaceName, *types)
 
-                //val gameState = GameState.fromDisplayName(firstResult)
-                // Update the state
-                //_gameStateLocal.update { currentState ->
-                //    currentState.copy(remoteGameState = gameState)
-                //}
+                // Ensure the result is not null or empty
+                if (result != null && result.isNotEmpty()) {
+                    @Suppress("UNCHECKED_CAST")
+                    return result.toList() as List<T>
+                } else {
+                    println("No tuple found in $spaceName space.")
+                }
             } catch (e: InterruptedException) {
                 Log.e("GameRepository", "Tuple retrieval interrupted: ${e.message}")
                 break
@@ -103,6 +148,28 @@ class GameRepository @Inject constructor(
         }
     }
 
+    suspend fun nextQuestion() {
+        val questionResult: List<String>? = retrieveItemFromSpace(
+            SpaceName.QUESTION,
+            String::class.java,
+            String::class.java,
+            String::class.java,
+            String::class.java
+        )
+
+        if (questionResult != null) {
+            _gameStateLocal.update { currentState ->
+                currentState.copy(
+                    question = Question(
+                        question = questionResult[0],
+                        answers = listOf(questionResult[1], questionResult[2], questionResult[3]),
+                    ))
+            }
+
+            Log.i("GameRepository", "Question: ${_gameStateLocal.value.question.question}")
+        }
+    }
+
     fun join() {
         CoroutineScope(Dispatchers.Default).launch {
             /*tupleSpaceConnection.retrieveGameState()
@@ -112,6 +179,20 @@ class GameRepository @Inject constructor(
                 )
             }*/
         }
+    }
+
+    fun getGameState(): GameState {
+        return _gameStateLocal.value.state
+    }
+
+    fun sendAnswer(answer: String) {
+        val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
+        _gameStateLocal.update { currentState ->
+            currentState.copy(chosenAnswer = answer)
+        }
+        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
+        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+        Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
     }
 
 }

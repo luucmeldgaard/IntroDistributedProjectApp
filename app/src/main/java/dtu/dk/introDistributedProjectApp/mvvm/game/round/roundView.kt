@@ -1,5 +1,7 @@
 package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
+import android.app.Application
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,9 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.Greeting
 import dtu.dk.introDistributedProjectApp.R
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
+import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
 import dtu.dk.introDistributedProjectApp.ui.theme.ChineseViolet
 import dtu.dk.introDistributedProjectApp.ui.theme.Coral
@@ -63,6 +68,11 @@ fun RoundView(
 ) {
 
     val roundUiModel by roundViewModel.uiModel.collectAsState()
+
+    LaunchedEffect(Unit) {
+        roundViewModel.clear()
+
+    }
 
     Box (
         modifier = Modifier
@@ -150,8 +160,14 @@ fun RoundView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        colors = if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0) ButtonDefaults.buttonColors(roundUiModel.buttonColors[index]) else ButtonDefaults.buttonColors(
+                        colors =
+                        if (roundUiModel.correctAnswer == roundUiModel.currentQuestion.answers[index])
+                            ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                        else if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0)
+                            ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
+                        else ButtonDefaults.buttonColors(
                             Color.DarkGray),
+
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
                             roundViewModel.onAnswerSelected(index)

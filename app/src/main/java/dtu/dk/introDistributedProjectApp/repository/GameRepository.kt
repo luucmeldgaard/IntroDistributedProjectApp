@@ -38,11 +38,11 @@ class GameRepository @Inject constructor(
 
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
-            updateTuple(SpaceName.PLAYER, player.name, gameStateLocal.value.userUUID.toString(), player.score)
+            updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString(), 1)
             updateTuple(SpaceName.PLAYER, "test2", "tester2", 2)
 
             while (true) {
-                val currentGameState = gameStateLocal.value.state
+                var currentGameState = gameStateLocal.value.state
                 val gameState: List<String>? = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
                 Log.i("GameRepository", "Gamestate is: $gameState")
                 Thread.sleep(1000)
@@ -63,13 +63,6 @@ class GameRepository @Inject constructor(
                             Log.i("GameRepository", "No answer was chosen. ")
                             updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
                             updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
-                        }
-
-                        val correctAnswer: List<String>? = retrieveItemFromSpace(SpaceName.ANSWER, String::class.java)
-                        if (correctAnswer != null) {
-                            _gameStateLocal.update { currentState ->
-                                currentState.copy(correctAnswer = correctAnswer[0])
-                            }
                         }
 
                         for (player in _gameStateLocal.value.players) {
@@ -186,15 +179,17 @@ class GameRepository @Inject constructor(
     }
 
     fun sendAnswer(answer: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
-            _gameStateLocal.update { currentState ->
-                currentState.copy(chosenAnswer = answer)
-            }
-            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
-            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
-            Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
+        val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
+        _gameStateLocal.update { currentState ->
+            currentState.copy(chosenAnswer = answer)
         }
+        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
+        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+        Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
+    }
+
+    fun getLocalPlayer(): Player? {
+        return gameStateLocal.value.players.find { it.id == gameStateLocal.value.userUUID.toString() }
     }
 
 }

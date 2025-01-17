@@ -35,8 +35,8 @@ class RoundViewModel @Inject constructor(
         _uiModel.update { currentState ->
             currentState.copy(
                 currentQuestion = gameStateLocal.question,
-                correctAnswer = gameStateLocal.correctAnswer,
-                currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
+                //correctAnswer = gameStateLocal.correctAnswer,
+                //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
             )
         }
 

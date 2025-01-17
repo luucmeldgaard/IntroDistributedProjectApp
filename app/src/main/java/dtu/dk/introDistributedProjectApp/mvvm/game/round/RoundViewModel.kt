@@ -3,7 +3,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dtu.dk.introDistributedProjectApp.data.GameState
+import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,7 @@ class RoundViewModel @Inject constructor(
     private val _uiModel = MutableStateFlow(RoundUiModel())
     val uiModel: StateFlow<RoundUiModel> = _uiModel.asStateFlow()
 
-    private val gameState: StateFlow<GameState> = gameRepository.gameState
+    private val gameStateLocal: StateFlow<GameStateLocal> = gameRepository.gameStateLocal
 
     init {
 
@@ -28,20 +28,20 @@ class RoundViewModel @Inject constructor(
 
     private fun observeGameState() {
         viewModelScope.launch {
-            gameState.collect { gameState ->
+            gameStateLocal.collect { gameState ->
                 onGameStateUpdate(gameState)
             }
         }
     }
 
-    private fun onGameStateUpdate(gameState: GameState) {
-        if (gameState.question.isNotEmpty()) {
+    private fun onGameStateUpdate(gameStateLocal: GameStateLocal) {
+        /*if (gameStateLocal.question.isNotEmpty()) {
             _uiModel.update { currentState ->
                 currentState.copy(
-                    currentQuestion = gameState.question.poll()
+                    currentQuestion = gameStateLocal.question.poll()
                 )
             }
-        }
+        }*/
     }
 
     fun onAnswerSelected(answer: Int) {

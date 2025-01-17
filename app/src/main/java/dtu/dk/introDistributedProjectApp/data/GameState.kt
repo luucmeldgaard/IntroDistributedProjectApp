@@ -1,12 +1,14 @@
 package dtu.dk.introDistributedProjectApp.data
 
-import kotlinx.serialization.Serializable
-import java.util.ArrayDeque
-import java.util.Queue
+enum class GameState(val displayName: String) {
+    STARTING("SHOWING"),
+    ANSWERING("ANSWERING"),
+    FINISHED("FINAL");
 
-@Serializable
-data class GameState(
-    val round: Int = 0,
-    val players: List<Player> = emptyList(),
-    val question: Queue<Question> = ArrayDeque<Question>()
-)
+    companion object {
+        // Function to get an enum constant from the string property
+        fun fromDisplayName(name: String): GameState? {
+            return entries.find { it.displayName == name }
+        }
+    }
+}

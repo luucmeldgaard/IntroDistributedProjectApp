@@ -2,6 +2,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,6 +74,7 @@ fun RoundView(
 ) {
 
     val roundUiModel by roundViewModel.uiModel.collectAsState()
+    var canClick by remember{mutableStateOf(true)}
 
     LaunchedEffect(Unit) {
         roundViewModel.clear()
@@ -94,7 +99,9 @@ fun RoundView(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(onClick = { navController.navigate(Screen.StartScreen.route) }) {
+                IconButton(onClick = {
+                    navController.navigate(Screen.StartScreen.route)
+                }) {
                     Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)
                 }
 
@@ -103,7 +110,7 @@ fun RoundView(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {Log.i("AppTag", "Clicked another button") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.trophy),
                             contentDescription = null,
@@ -183,14 +190,21 @@ fun RoundView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
+                        //enabled = canClick,
                         colors = getButtonColors(index), // Button color logic
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
-                            if (roundUiModel.currentState == GameState.ANSWERING) {
-                                roundViewModel.onAnswerSelected(index)
+
+                            Log.i("AppTag", "Clicked this button, maybe enabled")
+                            if (canClick){
+                                Log.i("AppTag", "Clicked this button, it is enabled")
+                                if (roundUiModel.currentState == GameState.ANSWERING) {
+                                    roundViewModel.onAnswerSelected(index)
+                                }
                             }
+
+                            canClick = false;
                         },
-                        enabled = true // Always enabled to retain the button appearance
                     ) {
                         Text(
                             text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp,

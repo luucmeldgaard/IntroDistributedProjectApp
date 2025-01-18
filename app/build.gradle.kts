@@ -58,6 +58,7 @@ android {
 dependencies {
 
     implementation("com.github.pSpaces.jSpace:common:-SNAPSHOT")
+    implementation(libs.okhttp)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -94,6 +95,8 @@ dependencies {
 
     implementation(libs.hilt.navigation)
     implementation(libs.hilt.android)
+
+
     //implementation(libs.hilt.compiler)
     ksp(libs.hilt.compiler)
 

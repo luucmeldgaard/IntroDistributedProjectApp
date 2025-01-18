@@ -24,6 +24,7 @@ import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
 import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundView
 import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundViewModel
+import dtu.dk.introDistributedProjectApp.mvvm.start.StartView
 import dtu.dk.introDistributedProjectApp.mvvm.start.StartViewModel
 import dtu.dk.introDistributedProjectApp.repository.ApplicationRepository
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
@@ -50,7 +51,8 @@ class MainActivity : ComponentActivity() {
             IntroDistributedProjectAppTheme {
                 MainNavHost(
                     roundViewModel = roundViewModel,
-                    gameRepository = gameRepository
+                    gameRepository = gameRepository,
+                    startViewModel = startViewModel,
                 )
             }
         }
@@ -60,6 +62,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainNavHost(
     roundViewModel: RoundViewModel,
+    startViewModel: StartViewModel,
     gameRepository: GameRepository
 ) {
     val navController = rememberNavController();
@@ -81,7 +84,7 @@ fun MainNavHost(
                             RoundView(navController, roundViewModel)
                         }
                         composable(route = Screen.StartScreen.route) {
-                            Greeting("Start Screen")
+                            StartView(navController, startViewModel)
                         }
                         composable(route = Screen.ScoreScreen.route) {
                             Greeting("Score Screen")

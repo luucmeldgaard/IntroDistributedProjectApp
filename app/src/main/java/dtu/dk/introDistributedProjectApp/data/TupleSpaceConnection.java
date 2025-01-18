@@ -16,10 +16,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import dtu.dk.introDistributedProjectApp.server.*;
 
 import dtu.dk.introDistributedProjectApp.data.SpaceName.*;
 public class TupleSpaceConnection {
-    private final static String REMOTE_URI = "tcp://10.0.2.2:9001/";
+    private final static String REMOTE_URI = "tcp://localhost:9001/";
     private Space remoteSpace;
     private Space playerSpace;
     private Space questionSpace;
@@ -27,6 +28,7 @@ public class TupleSpaceConnection {
     private Space answerSpace;
 
     private Map<SpaceName, RemoteSpace> spaces;
+    private Boolean connected = false;
 
 
     public TupleSpaceConnection() throws IOException, InterruptedException {
@@ -42,6 +44,7 @@ public class TupleSpaceConnection {
 
                 remoteSpace = future.get(3, TimeUnit.SECONDS);
                 Log.i("TupleSpaceConnection", "Successfully connected to remote space");
+                connected = true;
                 break; // Exit loop on success
             } catch (TimeoutException e) {
                 Log.i("TupleSpaceConnection", "Connection attempt timed out. Retrying...");
@@ -119,5 +122,9 @@ public class TupleSpaceConnection {
 
         targetSpace.put(items);
         Log.i("TupleSpaceConnection", "Tuple added to " + spaceName.name());
+    }
+
+    public Boolean getConnected() {
+        return this.connected;
     }
 }

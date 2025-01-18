@@ -8,7 +8,6 @@ import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.data.SpaceName
 import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
-import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundUiModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,18 +19,26 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.update
 import dtu.dk.introDistributedProjectApp.data.Player
+import dtu.dk.introDistributedProjectApp.server.*
 
 @Singleton
 class GameRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    // The local game state which reflects the current state of the game
     private val _gameStateLocal = MutableStateFlow(GameStateLocal())
+
+    // Same as above, but this is used by any observers of the game state (ViewModels and MainActivity eg.)
     val gameStateLocal: StateFlow<GameStateLocal> = _gameStateLocal.asStateFlow()
 
+    //
     private lateinit var tupleSpaceConnection: TupleSpaceConnection
 
     init {
         Log.i("GameRepository", "GameRepository created")
+
+        lauchServer()
+        Thread.sleep(2000)
 
         val player = Player(name = "tester", id = gameStateLocal.value.userUUID.toString(), score = 0)
         val otherPlayer = Player(name = "tester2", id = "tester2", score = 0)
@@ -131,6 +138,16 @@ class GameRepository @Inject constructor(
                     }
                 }
             }*/
+        }
+    }
+
+    private fun lauchServer() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Main.main(arrayOf())
+            } catch (e: Exception) {
+                Log.e("GameRepository", "Failed to launch server: ${e.message}")
+            }
         }
     }
 
@@ -279,5 +296,20 @@ class GameRepository @Inject constructor(
     fun getLocalPlayer(): Player? {
         return gameStateLocal.value.players.find { it.id == gameStateLocal.value.userUUID.toString() }
     }
+
+    /*fun initializeGame() {
+        lauchServer()
+        while (!tupleSpaceConnection.getConnected()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                initializeTupleSpaceConnection()
+            }
+            Thread.sleep(100)
+        }
+
+        setLocalGameState(tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name))
+
+        updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString(), 1)
+        updateTuple(SpaceName.PLAYER, "test2", "tester2", 2)
+    }*/
 
 }

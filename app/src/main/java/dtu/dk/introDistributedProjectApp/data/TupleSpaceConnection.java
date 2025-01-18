@@ -65,6 +65,20 @@ public class TupleSpaceConnection {
         );
     }
 
+    public final String queryGameStateAsString(String gameStateName) throws InterruptedException {
+        // Retrieve the corresponding space
+        Space targetSpace = spaces.get(SpaceName.GAMESTATE);
+
+        if (targetSpace == null) {
+            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.GAMESTATE);
+        }
+
+        // Query the tuple from the target space
+        return (String) targetSpace.query(new ActualField(gameStateName))[0];
+    }
+
+
+
     @SafeVarargs
     public final Object[] queryTuple(SpaceName spaceName, Class<?>... types) throws InterruptedException {
         // Retrieve the corresponding space

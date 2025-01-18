@@ -41,15 +41,54 @@ class GameRepository @Inject constructor(
             updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString(), 1)
             updateTuple(SpaceName.PLAYER, "test2", "tester2", 2)
 
+            var nextState: String
+
             while (true) {
+                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name)
+                Log.i("GameRepository", "ANSWERING STATE")
+                nextQuestion()
+
+                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.name)
+                Log.i("GameRepository", "SHOWING STATE")
+                if (gameStateLocal.value.chosenAnswer == "") {
+                    Log.i("GameRepository", "No answer was chosen. ")
+                    updateTuple(
+                        SpaceName.ANSWER,
+                        gameStateLocal.value.chosenAnswer,
+                        gameStateLocal.value.userUUID.toString()
+                    )
+                    updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+                }
+
+                for (player in _gameStateLocal.value.players) {
+                    if (player.id == "tester") {
+                        _gameStateLocal.update { currentState ->
+                            currentState.copy(
+                                players = currentState.players.map {
+                                    if (it.id == "tester") {
+                                        it.copy(score = tupleSpaceConnection.queryScoreUpdate(gameStateLocal.value.userUUID.toString()))
+                                    } else {
+                                        it
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+
+
+            /*while (true) {
                 var currentGameState = gameStateLocal.value.state
                 val gameState: List<String>? = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
+                val gameState: String = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name)
                 Log.i("GameRepository", "Gamestate is: $gameState")
-                Thread.sleep(1000)
 
                 if (gameState != null) {
                     _gameStateLocal.update { currentState ->
-                        currentState.copy(state = GameState.fromDisplayName(gameState[0])!!)
+                        //currentState.copy(state = GameState.fromDisplayName(gameState[0])!!) - was used for retrieve
+                        currentState.copy(state = GameState.fromDisplayName(gameState)!!)
                     }
                 }
                 if (currentGameState != gameStateLocal.value.state) {
@@ -83,7 +122,7 @@ class GameRepository @Inject constructor(
 
                     }
                 }
-            }
+            }*/
         }
     }
 
@@ -107,7 +146,7 @@ class GameRepository @Inject constructor(
                     @Suppress("UNCHECKED_CAST")
                     return result.toList() as List<T>
                 } else {
-                    println("No tuple found in $spaceName space.")
+                    Log.e("GameRepository", "No tuple found in space: $spaceName")
                 }
             } catch (e: InterruptedException) {
                 Log.e("GameRepository", "Tuple retrieval interrupted: ${e.message}")
@@ -139,6 +178,15 @@ class GameRepository @Inject constructor(
                 )
             }*/
         }
+    }
+
+    fun awaitNextGameState(nextGameState: GameState) {
+        val gameState: String = tupleSpaceConnection.queryGameStateAsString(nextGameState.name)
+
+        _gameStateLocal.update { currentState ->
+            currentState.copy(state = GameState.fromDisplayName(gameState)!!)
+        }
+        Log.i("GameRepository", "Gamestate is now: $gameState")
     }
 
     suspend fun nextQuestion() {

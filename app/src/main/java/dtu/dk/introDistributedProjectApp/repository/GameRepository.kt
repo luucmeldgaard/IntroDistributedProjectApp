@@ -45,10 +45,17 @@ class GameRepository @Inject constructor(
 
             while (true) {
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name)
+                setLocalGameState(nextState)
+
+                _gameStateLocal.update { currentState ->
+                    currentState.copy(state = GameState.fromDisplayName(nextState)!!)
+                }
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
 
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.name)
+                setLocalGameState(nextState)
+
                 Log.i("GameRepository", "SHOWING STATE")
                 if (gameStateLocal.value.chosenAnswer == "") {
                     Log.i("GameRepository", "No answer was chosen. ")
@@ -60,8 +67,8 @@ class GameRepository @Inject constructor(
                     updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
                 }
 
-                for (player in _gameStateLocal.value.players) {
-                    if (player.id == "tester") {
+                for (p in _gameStateLocal.value.players) {
+                    if (p.id == "tester") {
                         _gameStateLocal.update { currentState ->
                             currentState.copy(
                                 players = currentState.players.map {
@@ -75,6 +82,7 @@ class GameRepository @Inject constructor(
                         }
                     }
                 }
+
             }
 
 
@@ -123,6 +131,18 @@ class GameRepository @Inject constructor(
                     }
                 }
             }*/
+        }
+    }
+
+    private fun setLocalGameState(gameState: GameState) {
+        _gameStateLocal.update { currentState ->
+            currentState.copy(state = gameState)
+        }
+    }
+
+    private fun setLocalGameState(gameStateName: String) {
+        _gameStateLocal.update { currentState ->
+            currentState.copy(state = GameState.fromDisplayName(gameStateName)!!)
         }
     }
 
@@ -189,7 +209,7 @@ class GameRepository @Inject constructor(
         Log.i("GameRepository", "Gamestate is now: $gameState")
     }
 
-    suspend fun nextQuestion() {
+    private suspend fun nextQuestion() {
         val questionResult: List<String>? = retrieveItemFromSpace(
             SpaceName.QUESTION,
             String::class.java,
@@ -199,16 +219,31 @@ class GameRepository @Inject constructor(
         )
 
         if (questionResult != null) {
+
+            var question: Question = Question(
+                question = questionResult[0],
+                answers = listOf(questionResult[1], questionResult[2], questionResult[3])
+            )
+
+            question = shuffleQuestionAnswers(question)
+
+            // Note: The correct answer is always the second answer in the QuestionResult
+            val correctAnswerPosition = question.answers.indexOf(questionResult[1])
+
             _gameStateLocal.update { currentState ->
                 currentState.copy(
-                    question = Question(
-                        question = questionResult[0],
-                        answers = listOf(questionResult[1], questionResult[2], questionResult[3]),
-                    ))
+                    question = question,
+                    correctAnswer = correctAnswerPosition
+                )
             }
 
             Log.i("GameRepository", "Question: ${_gameStateLocal.value.question.question}")
         }
+    }
+
+    private fun shuffleQuestionAnswers(question: Question): Question {
+        val shuffledAnswers = question.answers.shuffled()
+        return question.copy(answers = shuffledAnswers)
     }
 
     fun join() {
@@ -227,6 +262,11 @@ class GameRepository @Inject constructor(
     }
 
     fun sendAnswer(answer: String) {
+        if (gameStateLocal.value.state != GameState.ANSWERING) {
+            Log.e("GameRepository", "Cannot send answer when not in ANSWERING state")
+            return
+        }
+
         val currentChosenAnswer = _gameStateLocal.value.chosenAnswer
         _gameStateLocal.update { currentState ->
             currentState.copy(chosenAnswer = answer)

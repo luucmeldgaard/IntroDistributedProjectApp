@@ -12,6 +12,6 @@ data class GameStateLocal(
     val question: Question = Question(),
     val state: GameState = GameState.SHOWING,
     val chosenAnswer: String = "",
-    val correctAnswer: String = "",
+    val correctAnswer: Int = 0,
     val userUUID: UUID = UUID.randomUUID()
 )

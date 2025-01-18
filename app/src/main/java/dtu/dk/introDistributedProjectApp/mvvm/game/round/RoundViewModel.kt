@@ -1,5 +1,6 @@
 package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,13 +32,29 @@ class RoundViewModel @Inject constructor(
     }
 
     private fun onGameStateUpdate(gameStateLocal: GameStateLocal) {
+        Log.i("RoundViewModel", "GameState: ${gameStateLocal.state}")
 
-        _uiModel.update { currentState ->
-            currentState.copy(
-                currentQuestion = gameStateLocal.question,
-                //correctAnswer = gameStateLocal.correctAnswer,
-                //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
-            )
+        if (gameStateLocal.state == GameState.ANSWERING) {
+            Log.i("RoundViewModel", "I ran 1")
+            // TODO: enable buttons
+            _uiModel.update { currentState ->
+                currentState.copy(
+                    currentQuestion = gameStateLocal.question,
+                    currentState = GameState.ANSWERING,
+                    //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
+                )
+            }
+        } else if (gameStateLocal.state == GameState.SHOWING) {
+            Log.i("RoundViewModel", "I ran 2")
+            // TODO: disable buttons
+            clear()
+            _uiModel.update { currentState ->
+                currentState.copy(
+                    correctAnswer = gameStateLocal.correctAnswer,
+                    currentState = GameState.SHOWING,
+                    //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
+                )
+            }
         }
 
         /*if (gameStateLocal.state != currentState) {

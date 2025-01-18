@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.twotone.Favorite
 import androidx.compose.material.icons.twotone.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -50,6 +51,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.Greeting
 import dtu.dk.introDistributedProjectApp.R
+import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
@@ -147,6 +149,27 @@ fun RoundView(
                 )
             }
 
+            val getButtonColors: @Composable (Int) -> ButtonColors = { index ->
+                if (roundUiModel.currentState == GameState.SHOWING) {
+                    if (index == roundUiModel.correctAnswer) {
+                        ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                    }
+                    else if (roundUiModel.selectedAnswer == index + 1 ) {
+                        ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
+                    }
+                    else {
+                        ButtonDefaults.buttonColors(Color.DarkGray)
+                    }
+                }
+                else {
+                    if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0) {
+                        ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
+                    } else {
+                        ButtonDefaults.buttonColors(Color.DarkGray)
+                    }
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -160,20 +183,27 @@ fun RoundView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        colors =
-                        if (roundUiModel.correctAnswer == roundUiModel.currentQuestion.answers[index])
-                            ButtonDefaults.buttonColors(UrbanDictionaryYellow)
-                        else if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0)
-                            ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
-                        else ButtonDefaults.buttonColors(
-                            Color.DarkGray),
-
+                        colors = getButtonColors(index), // Button color logic
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
-                            roundViewModel.onAnswerSelected(index)
+                            if (roundUiModel.currentState == GameState.ANSWERING) {
+                                roundViewModel.onAnswerSelected(index)
+                            }
                         },
+                        enabled = true // Always enabled to retain the button appearance
                     ) {
-                        Text(text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp)
+                        Text(
+                            text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp,
+                            color = if (roundUiModel.currentState == GameState.SHOWING) {
+                                if (index == roundUiModel.correctAnswer) {
+                                    Color.Black
+                                } else {
+                                    Color.White
+                                }
+                            } else {
+                                Color.White
+                            }
+                        )
                     }
                 }
             }

@@ -106,19 +106,19 @@ public class TupleSpaceConnection {
     }
 
     public final int queryScoreUpdate(String id) throws InterruptedException {
-        Space targetSpace = spaces.get(SpaceName.PLAYER);
+        Space targetSpace = spaces.get(SpaceName.SCOREBOARD);
 
         if (targetSpace == null) {
-            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.PLAYER);
+            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.SCOREBOARD);
         }
 
+        Log.i("TupleSpaceConnection", "Trying to retrieve updated player with id: " + id);
+        Object[] result = targetSpace.query(new FormalField(Integer.class), new ActualField(id));
 
-        Object[] result = targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class));
-
-        Log.i("TupleSpaceConnection", "Retrieved updated player: " + (String) result[0] + ", with id: " + (String) result[1] + ", and score: " + (int) result[2]);
+        Log.i("TupleSpaceConnection", "Retrieved updated player: " + (Integer) result[0] + ", with id: " + (String) result[1]);
 
         // Query the tuple from the target space
-        return (int) targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class))[2];
+        return (int) targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class))[0];
     }
 
     public final List<Map.Entry<String, Integer>> queryQuestion() throws InterruptedException {
@@ -157,5 +157,16 @@ public class TupleSpaceConnection {
 
     public Boolean getConnected() {
         return this.connected;
+    }
+
+    public final void setPlayerInScoreboard(int score, String id) throws InterruptedException {
+        Space targetSpace = spaces.get(SpaceName.SCOREBOARD);
+
+        if (targetSpace == null) {
+            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.SCOREBOARD.name());
+        }
+
+        targetSpace.put(score, id);
+        Log.i("TupleSpaceConnection", "Added player to scoreboard");
     }
 }

@@ -46,19 +46,24 @@ class GameRepository @Inject constructor(
 
         _gameStateLocal.update { currentState ->
             currentState.copy(
-                players = listOf(player, otherPlayer)
+                players = listOf(player, otherPlayer) // TODO: DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
             )
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
-            updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString())
-            updateTuple(SpaceName.PLAYER, "test2", "tester2")
+
+            for (p in gameStateLocal.value.players) {
+                Log.i("GameRepository", "Adding player to shared space: ${p.name}, ID: ${p.id}")
+                updateTuple(SpaceName.PLAYER, p.name, p.id)
+                //tupleSpaceConnection.setPlayerInScoreboard(p.score, p.id)
+            }
 
             var nextState: String
 
             while (true) {
-                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name)
+                Log.i("GameRepository", "Waiting for next ANSWERING game state")
+                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.displayName) // TODO: <------------ HER SmiDer JEg SÅ SPILlerNE inD i TUPPleSpaceT
                 setLocalGameState(nextState)
 
                 _gameStateLocal.update { currentState ->
@@ -67,7 +72,8 @@ class GameRepository @Inject constructor(
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
 
-                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.name)
+                Log.i("GameRepository", "Waiting for next SHOWING game state")
+                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.displayName)
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "SHOWING STATE")
@@ -82,7 +88,10 @@ class GameRepository @Inject constructor(
                     updateTuple(SpaceName.ANSWER, answerText, "tester2")
                 }
 
-                updatePlayerScore()
+                nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
+                setLocalGameState(nextState)
+
+                //updatePlayerScore() // TODO: This should be turned on! ANTIN DET HER ER TIL DIG <------------------------
                 Log.i("GameRepository", "Player[0] score updated to: ${gameStateLocal.value.players[0].score}")
             }
 
@@ -138,12 +147,17 @@ class GameRepository @Inject constructor(
     private fun updatePlayerScore() {
 
         val updatedPlayers = mutableListOf<Player>()
+        Log.i("GameRepository", "The fuck?")
+
         for (i in 0 until gameStateLocal.value.players.size) {
             val currentPlayer = gameStateLocal.value.players[i]
+            Log.i("GameRepository", "I AM HEREeeeeEEEe ---- $i")
             val updatedScore = tupleSpaceConnection.queryScoreUpdate(currentPlayer.id)
+            Log.i("GameRepository", "I AM HERE ---- $i")
             val updatedPlayer = currentPlayer.copy(
                 score = updatedScore
             )
+            Log.i("GameRepository", "I AM HERE 2")
             updatedPlayers.add(updatedPlayer)
             Log.i("GameRepository", "Player[${i}] score updated to: ${updatedPlayer.score}")
         }

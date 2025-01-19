@@ -24,6 +24,8 @@ import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.mvvm.Screen
 import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundView
 import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundViewModel
+import dtu.dk.introDistributedProjectApp.mvvm.scoreboard.ScoreboardView
+import dtu.dk.introDistributedProjectApp.mvvm.scoreboard.ScoreboardViewModel
 import dtu.dk.introDistributedProjectApp.mvvm.start.StartView
 import dtu.dk.introDistributedProjectApp.mvvm.start.StartViewModel
 import dtu.dk.introDistributedProjectApp.repository.ApplicationRepository
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     private val startViewModel: StartViewModel by viewModels()
     private val roundViewModel: RoundViewModel by viewModels()
+    private val scoreboardViewModel: ScoreboardViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +56,7 @@ class MainActivity : ComponentActivity() {
                     roundViewModel = roundViewModel,
                     gameRepository = gameRepository,
                     startViewModel = startViewModel,
+                    scoreboardViewModel = scoreboardViewModel,
                 )
             }
         }
@@ -63,6 +67,7 @@ class MainActivity : ComponentActivity() {
 fun MainNavHost(
     roundViewModel: RoundViewModel,
     startViewModel: StartViewModel,
+    scoreboardViewModel: ScoreboardViewModel,
     gameRepository: GameRepository
 ) {
     val navController = rememberNavController();
@@ -87,7 +92,7 @@ fun MainNavHost(
                             StartView(navController, startViewModel)
                         }
                         composable(route = Screen.ScoreScreen.route) {
-                            Greeting("Score Screen")
+                            ScoreboardView(navController, scoreboardViewModel)
                         }
                     }
                 }

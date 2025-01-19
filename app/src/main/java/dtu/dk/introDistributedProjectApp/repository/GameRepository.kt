@@ -311,6 +311,10 @@ class GameRepository @Inject constructor(
         return gameStateLocal.value.players.find { it.id == gameStateLocal.value.userUUID.toString() }
     }
 
+    fun getPlayers(): List<Player> {
+        return gameStateLocal.value.players
+    }
+
     /*fun initializeGame() {
         lauchServer()
         while (!tupleSpaceConnection.getConnected()) {

@@ -35,6 +35,7 @@ class RoundViewModel @Inject constructor(
         Log.i("RoundViewModel", "GameState: ${gameStateLocal.state}")
 
         if (gameStateLocal.state == GameState.ANSWERING) {
+            runTimer()
             Log.i("RoundViewModel", "I ran 1")
             // TODO: enable buttons
             _uiModel.update { currentState ->
@@ -88,6 +89,20 @@ class RoundViewModel @Inject constructor(
                 currentQuestion = gameStateLocal.question
             )
         }*/
+    }
+
+    private fun runTimer() {
+        viewModelScope.launch {
+            for (i in 30 downTo 0) {
+                _uiModel.update { currentState ->
+                    currentState.copy(
+                        secondsLeft = i
+                    )
+                }
+                kotlinx.coroutines.delay(1000)
+            }
+            onTimerFinished()
+        }
     }
 
     fun onAnswerSelected(answer: Int) {

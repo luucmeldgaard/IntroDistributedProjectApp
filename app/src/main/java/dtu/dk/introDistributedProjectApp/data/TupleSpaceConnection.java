@@ -20,7 +20,7 @@ import dtu.dk.introDistributedProjectApp.server.*;
 
 import dtu.dk.introDistributedProjectApp.data.SpaceName.*;
 public class TupleSpaceConnection {
-    private final static String REMOTE_URI = "tcp://localhost:9001/";
+    private final static String REMOTE_URI = "tcp://10.0.2.2:9001/"; // Use localhost instead when running server in app
     private Space remoteSpace;
     private Space playerSpace;
     private Space questionSpace;
@@ -102,12 +102,16 @@ public class TupleSpaceConnection {
     }
 
     public final int queryScoreUpdate(String id) throws InterruptedException {
-        // Retrieve the corresponding space
         Space targetSpace = spaces.get(SpaceName.PLAYER);
 
         if (targetSpace == null) {
             throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.PLAYER);
         }
+
+
+        Object[] result = targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class));
+
+        Log.i("TupleSpaceConnection", "Retrieved updated player: " + (String) result[0] + ", with id: " + (String) result[1] + ", and score: " + (int) result[2]);
 
         // Query the tuple from the target space
         return (int) targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class))[2];

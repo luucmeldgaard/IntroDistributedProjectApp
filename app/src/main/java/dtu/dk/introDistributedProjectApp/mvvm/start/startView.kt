@@ -31,7 +31,9 @@ fun StartView(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FilledTonalButton(
-            onClick = { viewModel.startGame() }
+            onClick = {
+                //viewModel.startGame()
+            }
         ) {
             Text(text = "Start Game")
         }

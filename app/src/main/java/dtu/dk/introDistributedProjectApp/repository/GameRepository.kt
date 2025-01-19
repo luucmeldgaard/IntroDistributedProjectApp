@@ -37,11 +37,18 @@ class GameRepository @Inject constructor(
     init {
         Log.i("GameRepository", "GameRepository created")
 
-        lauchServer()
+        // TODO: Uncomment this when the server should be run from app
+        //launchServer()
         Thread.sleep(2000)
 
         val player = Player(name = "tester", id = gameStateLocal.value.userUUID.toString(), score = 0)
         val otherPlayer = Player(name = "tester2", id = "tester2", score = 0)
+
+        _gameStateLocal.update { currentState ->
+            currentState.copy(
+                players = listOf(player, otherPlayer)
+            )
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
@@ -71,25 +78,12 @@ class GameRepository @Inject constructor(
                         gameStateLocal.value.chosenAnswer,
                         gameStateLocal.value.userUUID.toString()
                     )
-                    updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+                    val answerText = gameStateLocal.value.question.answers.get(gameStateLocal.value.chosenAnswer.toInt())
+                    updateTuple(SpaceName.ANSWER, answerText, "tester2")
                 }
 
-                for (p in _gameStateLocal.value.players) {
-                    if (p.id == "tester") {
-                        _gameStateLocal.update { currentState ->
-                            currentState.copy(
-                                players = currentState.players.map {
-                                    if (it.id == "tester") {
-                                        it.copy(score = tupleSpaceConnection.queryScoreUpdate(gameStateLocal.value.userUUID.toString()))
-                                    } else {
-                                        it
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
-
+                updatePlayerScore()
+                Log.i("GameRepository", "Player[0] score updated to: ${gameStateLocal.value.players[0].score}")
             }
 
 
@@ -141,7 +135,27 @@ class GameRepository @Inject constructor(
         }
     }
 
-    private fun lauchServer() {
+    private fun updatePlayerScore() {
+
+        val updatedPlayers = mutableListOf<Player>()
+        for (i in 0 until gameStateLocal.value.players.size) {
+            val currentPlayer = gameStateLocal.value.players[i]
+            val updatedScore = tupleSpaceConnection.queryScoreUpdate(currentPlayer.id)
+            val updatedPlayer = currentPlayer.copy(
+                score = updatedScore
+            )
+            updatedPlayers.add(updatedPlayer)
+            Log.i("GameRepository", "Player[${i}] score updated to: ${updatedPlayer.score}")
+        }
+
+        _gameStateLocal.update { currentState ->
+            currentState.copy(
+                players = updatedPlayers
+            )
+        }
+    }
+
+    private fun launchServer() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Main.main(arrayOf())
@@ -288,8 +302,8 @@ class GameRepository @Inject constructor(
         _gameStateLocal.update { currentState ->
             currentState.copy(chosenAnswer = answer)
         }
-        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
-        updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
+        updateTuple(SpaceName.ANSWER, answer, gameStateLocal.value.userUUID.toString())
+        updateTuple(SpaceName.ANSWER, answer, "tester2")
         Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
     }
 

@@ -98,7 +98,7 @@ fun RoundView(
                     Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)
                 }
 
-                Text(text = roundUiModel.currentRound.toString(), color = Color.White)
+                Text(text = roundUiModel.secondsLeft.toString(), color = Color.White)
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

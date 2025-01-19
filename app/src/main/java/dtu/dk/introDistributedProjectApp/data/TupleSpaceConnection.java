@@ -118,7 +118,7 @@ public class TupleSpaceConnection {
         Log.i("TupleSpaceConnection", "Retrieved updated player: " + (Integer) result[0] + ", with id: " + (String) result[1]);
 
         // Query the tuple from the target space
-        return (int) targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class))[0];
+        return (int) result[0];
     }
 
     public final List<Map.Entry<String, Integer>> queryQuestion() throws InterruptedException {

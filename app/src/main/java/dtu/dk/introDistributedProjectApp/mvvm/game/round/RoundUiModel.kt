@@ -2,6 +2,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
 import androidx.compose.ui.graphics.Color
 import dtu.dk.introDistributedProjectApp.data.GameState
+import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
 import dtu.dk.introDistributedProjectApp.ui.theme.ChineseViolet
@@ -20,5 +21,10 @@ data class RoundUiModel(
     val buttonColors: List<Color> = listOf(ChineseViolet, AirForceBlue, MyrtleGreen),
     val selectedAnswer: Int = 0,
     val correctAnswer: Int = 0,
-    val currentState: GameState = GameState.ANSWERING
+    val currentState: GameState = GameState.ANSWERING,
+    val player: Player = Player(
+        id = "9987",
+        name = "TORBEN",
+        score = 99
+    ),
 )

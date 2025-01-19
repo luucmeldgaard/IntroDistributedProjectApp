@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
+import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +43,6 @@ class RoundViewModel @Inject constructor(
                 currentState.copy(
                     currentQuestion = gameStateLocal.question,
                     currentState = GameState.ANSWERING,
-                    //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
                 )
             }
         } else if (gameStateLocal.state == GameState.SHOWING) {
@@ -56,6 +56,16 @@ class RoundViewModel @Inject constructor(
                     //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
                 )
             }
+        }
+
+        _uiModel.update { currentState ->
+            currentState.copy(
+                player = gameRepository.getLocalPlayer() ?: Player(
+                    id = "9987",
+                    name = "TORBEN",
+                    score = 99
+                )
+            )
         }
 
         /*if (gameStateLocal.state != currentState) {

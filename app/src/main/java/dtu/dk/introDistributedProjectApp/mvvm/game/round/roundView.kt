@@ -111,7 +111,7 @@ fun RoundView(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    Text(text = roundUiModel.currentScore.toString(), color = Color.White)
+                    Text(text = roundUiModel.player.score.toString(), color = Color.White)
                 }
             }
         }

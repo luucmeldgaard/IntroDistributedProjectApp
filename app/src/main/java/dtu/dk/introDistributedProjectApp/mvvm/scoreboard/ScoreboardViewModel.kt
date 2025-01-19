@@ -46,12 +46,15 @@ class ScoreboardViewModel @Inject constructor(
     private fun onGameStateUpdate(gameStateLocal: GameStateLocal) {
         Log.i("ScoreboardViewModel", "GameState: ${gameStateLocal.state}")
 
+        sortPlayersByScore(gameStateLocal.players)
+
         if (gameStateLocal.state == GameState.ANSWERING) {
             Log.e("ScoreboardViewModel", "Somehow in ANSWERING state. This should not happen.")
         } else if (gameStateLocal.state == GameState.SHOWING) {
             Log.e("ScoreboardViewModel", "Somehow in SHOWING state. This should not happen.")
         } else if (gameStateLocal.state == GameState.FINAL) {
-            //
+
         }
+
     }
 }

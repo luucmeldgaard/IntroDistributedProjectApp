@@ -91,7 +91,7 @@ class GameRepository @Inject constructor(
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
                 setLocalGameState(nextState)
 
-                //updatePlayerScore() // TODO: This should be turned on! ANTIN DET HER ER TIL DIG <------------------------
+                updatePlayerScore() // TODO: This should be turned on! ANTIN DET HER ER TIL DIG <------------------------
                 Log.i("GameRepository", "Player[0] score updated to: ${gameStateLocal.value.players[0].score}")
             }
 

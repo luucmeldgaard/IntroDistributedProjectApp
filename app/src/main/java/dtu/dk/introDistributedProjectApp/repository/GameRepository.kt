@@ -337,6 +337,12 @@ class GameRepository @Inject constructor(
         return gameStateLocal.value.players
     }
 
+    fun removeMeFromGame(){
+        CoroutineScope(Dispatchers.IO).launch{
+            tupleSpaceConnection.removePlayer(_gameStateLocal.value.userUUID.toString())
+        }
+    }
+
     /*fun initializeGame() {
         lauchServer()
         while (!tupleSpaceConnection.getConnected()) {

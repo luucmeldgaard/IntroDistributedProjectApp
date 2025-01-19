@@ -60,6 +60,17 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        //gameRepository.removeMeFromGame()
+    }
+
+    override fun onPause() {
+        gameRepository.removeMeFromGame()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        gameRepository.removeMeFromGame()
+        super.onDestroy();
     }
 }
 

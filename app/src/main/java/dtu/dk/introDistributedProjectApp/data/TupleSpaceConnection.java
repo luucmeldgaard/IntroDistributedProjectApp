@@ -8,8 +8,6 @@ import org.jspace.RemoteSpace;
 import org.jspace.Space;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import dtu.dk.introDistributedProjectApp.server.*;
 
 import dtu.dk.introDistributedProjectApp.data.SpaceName.*;
 public class TupleSpaceConnection {
@@ -82,6 +79,22 @@ public class TupleSpaceConnection {
 
         // Query the tuple from the target space
         return (String) targetSpace.query(new ActualField(gameStateName))[0];
+    }
+
+    public void removePlayer(String ID){
+        Space playerSpace = spaces.get(SpaceName.PLAYER);
+        Space scoreboardSpace = spaces.get(SpaceName.SCOREBOARD);
+        Space answerSpace = spaces.get(SpaceName.ANSWER);
+
+        try{
+            playerSpace.get(new FormalField(String.class), new ActualField(ID));
+            scoreboardSpace.get(new FormalField(Integer.class), new ActualField(ID));
+            answerSpace.get(new FormalField(String.class), new ActualField(ID));
+            answerSpace.get(new FormalField(String.class), new ActualField(ID), new FormalField(Long.class));
+            Log.i("TupleSpaceConnection", "Player removed from game successfully");
+        } catch (InterruptedException e){
+            Log.e("TupleSpaceConnection", "Player removal was interrupted");
+        }
     }
 
 

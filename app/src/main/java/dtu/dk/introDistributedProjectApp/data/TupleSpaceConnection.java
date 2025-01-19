@@ -8,7 +8,10 @@ import org.jspace.RemoteSpace;
 import org.jspace.Space;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -61,10 +64,11 @@ public class TupleSpaceConnection {
         }
 
         this.spaces = Map.of(
-                SpaceName.PLAYER, new RemoteSpace(REMOTE_URI + "Players?keep"),
-                SpaceName.QUESTION, new RemoteSpace(REMOTE_URI + "Question?keep"),
-                SpaceName.GAMESTATE, new RemoteSpace(REMOTE_URI + "GameState?keep"),
-                SpaceName.ANSWER, new RemoteSpace(REMOTE_URI + "Answers?keep")
+                SpaceName.PLAYER, new RemoteSpace(REMOTE_URI + "playerConnectionSpace?keep"),
+                SpaceName.QUESTION, new RemoteSpace(REMOTE_URI + "questionSpace?keep"),
+                SpaceName.GAMESTATE, new RemoteSpace(REMOTE_URI + "gameStateSpace?keep"),
+                SpaceName.ANSWER, new RemoteSpace(REMOTE_URI + "answerSpace?keep"),
+                SpaceName.SCOREBOARD, new RemoteSpace(REMOTE_URI + "scoreboardSpace?keep")
         );
     }
 
@@ -115,6 +119,29 @@ public class TupleSpaceConnection {
 
         // Query the tuple from the target space
         return (int) targetSpace.query(new FormalField(String.class), new ActualField(id), new FormalField(Integer.class))[2];
+    }
+
+    public final List<Map.Entry<String, Integer>> queryQuestion() throws InterruptedException {
+        Space targetSpace = spaces.get(SpaceName.QUESTION);
+
+        if (targetSpace == null) {
+            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.QUESTION);
+        }
+
+
+        List<Object[]> request = targetSpace.queryAll(new FormalField(String.class), new FormalField(Integer.class));
+        List<Map.Entry<String, Integer>> pairs = new ArrayList<>();
+
+        for (Object[] part : request) {
+            String text = (String) part[0];
+            int type = (int) part[1];
+            pairs.add(Map.entry(text, type));
+        }
+
+        Log.i("TupleSpaceConnection", "Retrieved new question: ");
+
+        // Query the tuple from the target space
+        return pairs;
     }
 
     public final void updateTuple(SpaceName spaceName, Object... items) throws InterruptedException {

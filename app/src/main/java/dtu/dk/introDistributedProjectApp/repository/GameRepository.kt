@@ -52,8 +52,8 @@ class GameRepository @Inject constructor(
 
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
-            updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString(), 1)
-            updateTuple(SpaceName.PLAYER, "test2", "tester2", 2)
+            updateTuple(SpaceName.PLAYER, "test", gameStateLocal.value.userUUID.toString())
+            updateTuple(SpaceName.PLAYER, "test2", "tester2")
 
             var nextState: String
 
@@ -241,25 +241,33 @@ class GameRepository @Inject constructor(
     }
 
     private suspend fun nextQuestion() {
-        val questionResult: List<String>? = retrieveItemFromSpace(
-            SpaceName.QUESTION,
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            String::class.java
-        )
+        val questionResult = tupleSpaceConnection.queryQuestion()
+        var questionText = ""
+        val answers = mutableListOf<String>()
+        var correctAnswerText = ""
 
         if (questionResult != null) {
 
+            for (pair in questionResult) {
+                Log.i("GameRepository", "Key: ${pair.key}, Value: ${pair.value}")
+                if (pair.value == 0) {
+                    answers.add(pair.key)
+                } else if (pair.value == 1) {
+                    answers.add(pair.key)
+                    correctAnswerText = pair.key
+                } else if (pair.value == 2) {
+                    questionText = pair.key
+                }
+            }
+
             var question: Question = Question(
-                question = questionResult[0],
-                answers = listOf(questionResult[1], questionResult[2], questionResult[3])
+                question = questionText,
+                answers = answers,
             )
 
             question = shuffleQuestionAnswers(question)
 
-            // Note: The correct answer is always the second answer in the QuestionResult
-            val correctAnswerPosition = question.answers.indexOf(questionResult[1])
+            val correctAnswerPosition = question.answers.indexOf(correctAnswerText)
 
             _gameStateLocal.update { currentState ->
                 currentState.copy(

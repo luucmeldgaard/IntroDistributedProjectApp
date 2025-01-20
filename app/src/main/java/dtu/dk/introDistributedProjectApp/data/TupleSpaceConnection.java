@@ -126,7 +126,7 @@ public class TupleSpaceConnection {
         }
 
         Log.i("TupleSpaceConnection", "Trying to retrieve updated player with id: " + id);
-        Object[] result = targetSpace.query(new FormalField(Integer.class), new ActualField(id));
+        Object[] result = targetSpace.query(new FormalField(Integer.class), new ActualField(id)); //TODO: I got an error here. We should do some error handling on the connection
 
         Log.i("TupleSpaceConnection", "Retrieved updated player: " + (Integer) result[0] + ", with id: " + (String) result[1]);
 

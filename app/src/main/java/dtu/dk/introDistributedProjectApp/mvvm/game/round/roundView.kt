@@ -2,6 +2,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
 import android.app.Application
 import android.content.Context
+import android.media.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.twotone.Favorite
 import androidx.compose.material.icons.twotone.Menu
 import androidx.compose.material3.Button
@@ -31,6 +33,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,14 +94,13 @@ fun RoundView(
                 modifier = Modifier
                     .height(56.dp)
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                /*
                 IconButton(onClick = { navController.navigate(Screen.StartScreen.route) }) {
-                    Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)
-                }
-
-                Text(text = roundUiModel.secondsLeft.toString(), color = Color.White)
+                    Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)}
+                 */
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -111,9 +113,27 @@ fun RoundView(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    Text(text = roundUiModel.player.score.toString(), color = Color.White)
+                    Text(text = roundUiModel.player.score.toString(),
+                        color = Color.White,
+                        fontSize = 22.sp
+                    )
                 }
             }
+
+            LinearProgressIndicator(
+                progress = {
+                    (roundUiModel.secondsLeft.toFloat() / 30f).coerceIn(0f, 1f) // TODO: Dont hardcode 30
+                },
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.Green,
+                trackColor = Color.LightGray,
+            )
+
+            Text(text = (roundUiModel.secondsLeft.toString() + " seconds left"),
+                color = Color.White, fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally))
+
+
         }
 
         Column(

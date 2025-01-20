@@ -39,7 +39,7 @@ class RoundViewModel @Inject constructor(
 
         if (gameStateLocal.state == GameState.ANSWERING) {
             runTimer()
-            Log.i("RoundViewModel", "I ran 1")
+            //Log.i("RoundViewModel", "I ran 1")
             // TODO: enable buttons
             _uiModel.update { currentState ->
                 currentState.copy(
@@ -48,7 +48,7 @@ class RoundViewModel @Inject constructor(
                 )
             }
         } else if (gameStateLocal.state == GameState.SHOWING) {
-            Log.i("RoundViewModel", "I ran 2")
+            //Log.i("RoundViewModel", "I ran 2")
             // TODO: disable buttons
             clear()
             _uiModel.update { currentState ->

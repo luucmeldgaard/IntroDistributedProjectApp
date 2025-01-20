@@ -71,6 +71,7 @@ public class TupleSpaceConnection {
 
     public final String queryGameStateAsString(String gameStateName) throws InterruptedException {
         // Retrieve the corresponding space
+        Log.w("TupleSpaceConnection", "Querying game state for: " + gameStateName);
         Space targetSpace = spaces.get(SpaceName.GAMESTATE);
 
         if (targetSpace == null) {
@@ -126,12 +127,15 @@ public class TupleSpaceConnection {
         }
 
         Log.i("TupleSpaceConnection", "Trying to retrieve updated player with id: " + id);
-        Object[] result = targetSpace.query(new FormalField(Integer.class), new ActualField(id)); //TODO: I got an error here. We should do some error handling on the connection
-
-        Log.i("TupleSpaceConnection", "Retrieved updated player: " + (Integer) result[0] + ", with id: " + (String) result[1]);
-
-        // Query the tuple from the target space
-        return (int) result[0];
+        Object[] result = targetSpace.queryp(new FormalField(Integer.class), new ActualField(id)); //TODO: I got an error here. We should do some error handling on the connection
+        if (result != null){
+            Log.i("TupleSpaceConnection", "Retrieved updated player: " + (Integer) result[0] + ", with id: " + (String) result[1]);
+            // Query the tuple from the target space
+            return (int) result[0];
+        } else {
+            Log.w("TupleSpaceConnection", "Player was not found on scoreboard. Assuming score is 0");
+            return 0;
+        }
     }
 
     public final List<Map.Entry<String, Integer>> queryQuestion() throws InterruptedException {

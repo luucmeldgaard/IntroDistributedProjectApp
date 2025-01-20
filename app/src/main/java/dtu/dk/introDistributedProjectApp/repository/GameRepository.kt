@@ -77,7 +77,7 @@ class GameRepository @Inject constructor(
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "SHOWING STATE")
-                if (gameStateLocal.value.chosenAnswer == "") {
+                if (gameStateLocal.value.chosenAnswer == "" && false) { //TODO: This needs to be false, idk why
                     Log.i("GameRepository", "No answer was chosen. ")
                     updateTuple(
                         SpaceName.ANSWER,

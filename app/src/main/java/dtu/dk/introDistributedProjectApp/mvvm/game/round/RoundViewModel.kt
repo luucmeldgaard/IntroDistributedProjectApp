@@ -58,6 +58,8 @@ class RoundViewModel @Inject constructor(
                     //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
                 )
             }
+        } else if (gameStateLocal.state == GameState.FINAL){
+            Log.w("onGameStateUpdate", "Shouldn't something happen here?")
         }
 
         _uiModel.update { currentState ->

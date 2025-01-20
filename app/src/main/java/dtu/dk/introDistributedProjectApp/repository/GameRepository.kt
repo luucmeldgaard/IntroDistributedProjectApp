@@ -65,21 +65,25 @@ class GameRepository @Inject constructor(
                 Log.i("GameRepository", "Waiting for next ANSWERING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.displayName) // TODO: <------------ HER SmiDer JEg SÅ SPILlerNE inD i TUPPleSpaceT
                 setLocalGameState(nextState)
-
+                /*
                 _gameStateLocal.update { currentState ->
                     currentState.copy(state = GameState.fromDisplayName(nextState)!!)
                 }
+
+                 */
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
-                val answerText = gameStateLocal.value.question.answers[1];
-                updateTuple(SpaceName.ANSWER, answerText, "tester2")
+                val fakePlayerAnswerText = gameStateLocal.value.question.answers[1];
+
+                //Error is before this
+                updateTuple(SpaceName.ANSWER, fakePlayerAnswerText, "fakePlayer1")
 
                 Log.i("GameRepository", "Waiting for next SHOWING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.displayName)
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "SHOWING STATE")
-                if (gameStateLocal.value.chosenAnswer == "" && false) { //TODO: This needs to be false, idk why
+                if (gameStateLocal.value.chosenAnswer == "" && false) { //TODO: This needs to be false, idk why we are doing this here and not in nextquestion()
                     Log.i("GameRepository", "No answer was chosen. ")
                     updateTuple(
                         SpaceName.ANSWER,
@@ -192,6 +196,7 @@ class GameRepository @Inject constructor(
         _gameStateLocal.update { currentState ->
             currentState.copy(state = GameState.fromDisplayName(gameStateName)!!)
         }
+
     }
 
     private suspend fun initializeTupleSpaceConnection() {
@@ -282,7 +287,7 @@ class GameRepository @Inject constructor(
                 answers = answers,
             )
 
-            question = shuffleQuestionAnswers(question)
+            //question = shuffleQuestionAnswers(question)
 
             val correctAnswerPosition = question.answers.indexOf(correctAnswerText)
 
@@ -294,6 +299,8 @@ class GameRepository @Inject constructor(
             }
 
             Log.i("GameRepository", "Question: ${_gameStateLocal.value.question.question}")
+        } else {
+            Log.w("GameRepository", "questionResult is null")
         }
     }
 

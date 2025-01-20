@@ -71,15 +71,17 @@ public class TupleSpaceConnection {
 
     public final String queryGameStateAsString(String gameStateName) throws InterruptedException {
         // Retrieve the corresponding space
-        Log.w("TupleSpaceConnection", "Querying game state for: " + gameStateName);
+        //Log.w("TupleSpaceConnection", "Querying game state for: " + gameStateName + ", aka: " + SpaceName.GAMESTATE.getDisplayName());
         Space targetSpace = spaces.get(SpaceName.GAMESTATE);
 
         if (targetSpace == null) {
-            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.GAMESTATE);
+            throw new IllegalArgumentException("Invalid SpaceName: " + SpaceName.GAMESTATE.getDisplayName());
         }
 
         // Query the tuple from the target space
-        return (String) targetSpace.query(new ActualField(gameStateName))[0];
+        String state = (String) targetSpace.query(new ActualField(gameStateName))[0];
+        Log.i("queryGameStateAsString", "Got state: " + state);
+        return state;
     }
 
     public void removePlayer(String ID){

@@ -85,10 +85,10 @@ class GameRepository @Inject constructor(
                         gameStateLocal.value.userUUID.toString()
                     )
                     //val answerText = gameStateLocal.value.question.answers.get(gameStateLocal.value.chosenAnswer.toInt()) I dont know why this was here;
-                    val answerText = gameStateLocal.value.question.answers[1];
 
-                    updateTuple(SpaceName.ANSWER, answerText, "tester2")
                 }
+                val answerText = gameStateLocal.value.question.answers[1];
+                updateTuple(SpaceName.ANSWER, answerText, "tester2")
 
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
                 setLocalGameState(nextState)

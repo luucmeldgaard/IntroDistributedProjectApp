@@ -157,7 +157,7 @@ public class TupleSpaceConnection {
             pairs.add(Map.entry(text, type));
         }
 
-        Log.i("TupleSpaceConnection", "Retrieved new question: ");
+        Log.i("TupleSpaceConnection", "Retrieved new question");
 
         // Query the tuple from the target space
         return pairs;

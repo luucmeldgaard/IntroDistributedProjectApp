@@ -55,7 +55,7 @@ class GameRepository @Inject constructor(
     }
 
     fun joinGame() {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch { //TODO: everything inside this coroutine shouldn't be sequential
             initializeTupleSpaceConnection()
 
             for (p in gameStateLocal.value.players) {

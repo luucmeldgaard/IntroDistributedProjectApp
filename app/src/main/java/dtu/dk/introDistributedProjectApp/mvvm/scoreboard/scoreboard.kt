@@ -73,14 +73,17 @@ fun ScoreboardView(
                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = currentPlayer.name, fontSize = 12.6.sp,
+                        text = currentPlayer.name, fontSize = 14.sp,
                         color = Color.White,
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(end = 10.dp),
                     )
                     Text(
-                        text = currentPlayer.score.toString(), fontSize = 12.6.sp,
+                        modifier = Modifier.padding(start = 10.dp),
+                        text = currentPlayer.score.toString(), fontSize = 14.sp,
                         color = Color.White,
+
                     )
                 }
                 HorizontalDivider(thickness = 1.dp, color = Color.White)

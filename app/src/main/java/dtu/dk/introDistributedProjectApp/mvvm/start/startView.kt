@@ -32,6 +32,7 @@ fun StartView(
     ) {
         FilledTonalButton(
             onClick = {
+                // TODO: Put 'startButtonEnabledStatus', create isButtonPressedThingy in viewmodel, and then check in model if already clicked before running startGame
                 viewModel.startGame()
             }
         ) {

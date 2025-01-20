@@ -9,6 +9,7 @@ import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,7 @@ class RoundViewModel @Inject constructor(
 
     private val _uiModel = MutableStateFlow(RoundUiModel())
     val uiModel: StateFlow<RoundUiModel> = _uiModel.asStateFlow()
+    private var previousTimer: Job? = null;
 
     init {
         viewModelScope.launch {
@@ -102,8 +104,9 @@ class RoundViewModel @Inject constructor(
     }
 
     private fun runTimer() {
-        viewModelScope.launch {
-            for (i in 30 downTo 0) {
+        previousTimer?.cancel()
+        previousTimer = viewModelScope.launch {
+            for (i in 30 downTo 0) { //TODO: 30 seconds is hardcoded
                 _uiModel.update { currentState ->
                     currentState.copy(
                         secondsLeft = i

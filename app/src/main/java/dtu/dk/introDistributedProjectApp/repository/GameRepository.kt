@@ -71,6 +71,8 @@ class GameRepository @Inject constructor(
                 }
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
+                val answerText = gameStateLocal.value.question.answers[1];
+                updateTuple(SpaceName.ANSWER, answerText, "tester2")
 
                 Log.i("GameRepository", "Waiting for next SHOWING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.displayName)
@@ -87,8 +89,7 @@ class GameRepository @Inject constructor(
                     //val answerText = gameStateLocal.value.question.answers.get(gameStateLocal.value.chosenAnswer.toInt()) I dont know why this was here;
 
                 }
-                val answerText = gameStateLocal.value.question.answers[1];
-                updateTuple(SpaceName.ANSWER, answerText, "tester2")
+
 
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
                 setLocalGameState(nextState)

@@ -118,13 +118,14 @@ class RoundViewModel @Inject constructor(
                 }
                 kotlinx.coroutines.delay(1000)
             }
-            onTimerFinished()
+            onTimerFinished() //TODO: This doesn't do anything
         }
     }
 
     fun onAnswerSelected(answer: Int) {
 
         var selectedAnswer = answer + 1 // To account for 0-based index
+        Log.i("onAnswerSelected", "onAnswerSelected has been called")
 
         if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected
             selectedAnswer = 0 // deselects all by setting to 0

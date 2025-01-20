@@ -46,17 +46,21 @@ class GameRepository @Inject constructor(
 
         _gameStateLocal.update { currentState ->
             currentState.copy(
-                players = listOf(player, otherPlayer) // TODO: DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
+                players = listOf(
+                    player,
+                    otherPlayer
+                ) // TODO: DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
             )
         }
+    }
 
+    fun joinGame() {
         CoroutineScope(Dispatchers.IO).launch {
             initializeTupleSpaceConnection()
 
             for (p in gameStateLocal.value.players) {
                 Log.i("GameRepository", "Adding player to shared space: ${p.name}, ID: ${p.id}")
                 updateTuple(SpaceName.PLAYER, p.name, p.id)
-                //tupleSpaceConnection.setPlayerInScoreboard(p.score, p.id)
             }
 
             var nextState: String
@@ -65,12 +69,7 @@ class GameRepository @Inject constructor(
                 Log.i("GameRepository", "Waiting for next ANSWERING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.displayName) // TODO: <------------ HER SmiDer JEg SÅ SPILlerNE inD i TUPPleSpaceT
                 setLocalGameState(nextState)
-                /*
-                _gameStateLocal.update { currentState ->
-                    currentState.copy(state = GameState.fromDisplayName(nextState)!!)
-                }
 
-                 */
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
                 val fakePlayerAnswerText = gameStateLocal.value.question.answers[1];
@@ -83,16 +82,14 @@ class GameRepository @Inject constructor(
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "SHOWING STATE")
-                if (gameStateLocal.value.chosenAnswer == "" && false) { //TODO: This needs to be false, idk why we are doing this here and not in nextquestion()
+                /*if (gameStateLocal.value.chosenAnswer == "") { //TODO: This needs to be false, idk why we are doing this here and not in nextquestion()
                     Log.i("GameRepository", "No answer was chosen. ")
                     updateTuple(
                         SpaceName.ANSWER,
                         gameStateLocal.value.chosenAnswer,
                         gameStateLocal.value.userUUID.toString()
                     )
-                    //val answerText = gameStateLocal.value.question.answers.get(gameStateLocal.value.chosenAnswer.toInt()) I dont know why this was here;
-
-                }
+                }*/
 
 
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
@@ -101,53 +98,6 @@ class GameRepository @Inject constructor(
                 updatePlayerScore() // TODO: This should be turned on! ANTIN DET HER ER TIL DIG <------------------------
                 Log.i("GameRepository", "Player[0] score updated to: ${gameStateLocal.value.players[0].score}")
             }
-
-
-
-            /*while (true) {
-                var currentGameState = gameStateLocal.value.state
-                val gameState: List<String>? = retrieveItemFromSpace(SpaceName.GAMESTATE, String::class.java)
-                val gameState: String = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.name)
-                Log.i("GameRepository", "Gamestate is: $gameState")
-
-                if (gameState != null) {
-                    _gameStateLocal.update { currentState ->
-                        //currentState.copy(state = GameState.fromDisplayName(gameState[0])!!) - was used for retrieve
-                        currentState.copy(state = GameState.fromDisplayName(gameState)!!)
-                    }
-                }
-                if (currentGameState != gameStateLocal.value.state) {
-                    if (gameStateLocal.value.state == GameState.ANSWERING) {
-                        Log.i("GameRepository", "ANSWERING STATE")
-                        nextQuestion()
-                    }
-                    else if (currentGameState == GameState.SHOWING) {
-                        Log.i("GameRepository", "SHOWING STATE")
-                        if (gameStateLocal.value.chosenAnswer == "") {
-                            Log.i("GameRepository", "No answer was chosen. ")
-                            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, gameStateLocal.value.userUUID.toString())
-                            updateTuple(SpaceName.ANSWER, gameStateLocal.value.chosenAnswer, "tester2")
-                        }
-
-                        for (player in _gameStateLocal.value.players) {
-                            if (player.id == "tester") {
-                                _gameStateLocal.update { currentState ->
-                                    currentState.copy(
-                                        players = currentState.players.map {
-                                            if (it.id == "tester") {
-                                                it.copy(score = tupleSpaceConnection.queryScoreUpdate(gameStateLocal.value.userUUID.toString()))
-                                            } else {
-                                                it
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }*/
         }
     }
 
@@ -158,13 +108,13 @@ class GameRepository @Inject constructor(
 
         for (i in 0 until gameStateLocal.value.players.size) {
             val currentPlayer = gameStateLocal.value.players[i]
-            Log.i("GameRepository", "I AM HEREeeeeEEEe ---- $i")
+            //Log.i("GameRepository", "I AM HEREeeeeEEEe ---- $i")
             val updatedScore = tupleSpaceConnection.queryScoreUpdate(currentPlayer.id)
-            Log.i("GameRepository", "I AM HERE ---- $i")
+            //Log.i("GameRepository", "I AM HERE ---- $i")
             val updatedPlayer = currentPlayer.copy(
                 score = updatedScore
             )
-            Log.i("GameRepository", "I AM HERE 2")
+            //Log.i("GameRepository", "I AM HERE 2")
             updatedPlayers.add(updatedPlayer)
             Log.i("GameRepository", "Player[${i}] score updated to: ${updatedPlayer.score}")
         }

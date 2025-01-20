@@ -132,6 +132,11 @@ fun MainNavHost(
                     navController.navigate(Screen.ScoreScreen.route)
                 }
             }
+            GameState.LOCAL_START -> {
+                if (currentDestination != Screen.StartScreen.route) {
+                    navController.navigate(Screen.StartScreen.route)
+                }
+            }
         }
     }
 

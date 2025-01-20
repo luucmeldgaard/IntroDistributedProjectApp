@@ -45,6 +45,7 @@ class RoundViewModel @Inject constructor(
                 currentState.copy(
                     currentQuestion = gameStateLocal.question,
                     currentState = GameState.ANSWERING,
+
                 )
             }
         } else if (gameStateLocal.state == GameState.SHOWING) {
@@ -58,8 +59,9 @@ class RoundViewModel @Inject constructor(
                     //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
                 )
             }
-        } else if (gameStateLocal.state == GameState.FINAL){
+        } else if (gameStateLocal.state == GameState.FINAL) {
             Log.w("onGameStateUpdate", "Shouldn't something happen here?")
+            clear()
         }
 
         _uiModel.update { currentState ->
@@ -153,6 +155,8 @@ class RoundViewModel @Inject constructor(
             _uiModel.update { currentState ->
                 currentState.copy(
                     selectedAnswer = 0,
+                    secondsLeft = 30,
+                    correctAnswer = 0,
                 )
             }
         }

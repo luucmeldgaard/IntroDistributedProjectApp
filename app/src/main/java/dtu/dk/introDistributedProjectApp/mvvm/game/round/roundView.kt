@@ -3,6 +3,7 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 import android.app.Application
 import android.content.Context
 import android.media.Image
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,11 +73,11 @@ fun RoundView(
     roundViewModel: RoundViewModel,
 ) {
 
+    //val roundViewModel: RoundViewModel by viewModels()
     val roundUiModel by roundViewModel.uiModel.collectAsState()
 
     LaunchedEffect(Unit) {
         roundViewModel.clear()
-
     }
 
     Box (

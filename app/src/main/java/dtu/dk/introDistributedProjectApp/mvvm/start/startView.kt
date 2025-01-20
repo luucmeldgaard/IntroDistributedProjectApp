@@ -32,7 +32,7 @@ fun StartView(
     ) {
         FilledTonalButton(
             onClick = {
-                //viewModel.startGame()
+                viewModel.startGame()
             }
         ) {
             Text(text = "Start Game")

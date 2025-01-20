@@ -26,7 +26,7 @@ class StartViewModel @Inject constructor(
     }
 
     fun startGame() {
-        //gameRepository.initializeGame()
+        gameRepository.joinGame()
     }
 
 }

@@ -72,10 +72,10 @@ class GameRepository @Inject constructor(
 
                 Log.i("GameRepository", "ANSWERING STATE")
                 nextQuestion()
-                val fakePlayerAnswerText = gameStateLocal.value.question.answers[1];
+                //val fakePlayerAnswerText = gameStateLocal.value.question.answers[1];
 
                 //Error is before this
-                updateTuple(SpaceName.ANSWER, fakePlayerAnswerText, "fakePlayer1")
+                //updateTuple(SpaceName.ANSWER, fakePlayerAnswerText, "fakePlayer1")
 
                 Log.i("GameRepository", "Waiting for next SHOWING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.SHOWING.displayName)
@@ -183,7 +183,13 @@ class GameRepository @Inject constructor(
 
     @Throws(InterruptedException::class)
     fun updateTuple(spaceName: SpaceName, vararg items: Any) {
-        Log.i("GameRepository", "Updating tuple in space: $spaceName")
+        if(
+            spaceName == SpaceName.ANSWER && false
+        ){
+            throw Exception("Boop");
+        }
+
+        Log.i("GameRepository", "Updating tuple in space: $spaceName" + " This should be called twice a round atm") //TODO: Remove log
         tupleSpaceConnection.updateTuple(spaceName, *items)
     }
 

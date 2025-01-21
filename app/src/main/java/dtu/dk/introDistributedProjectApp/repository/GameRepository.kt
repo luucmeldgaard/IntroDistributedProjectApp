@@ -242,7 +242,7 @@ class GameRepository @Inject constructor(
                 answers = answers,
             )
 
-            //question = shuffleQuestionAnswers(question)
+            question = shuffleQuestionAnswers(question)
 
             val correctAnswerPosition = question.answers.indexOf(correctAnswerText)
 
@@ -260,7 +260,7 @@ class GameRepository @Inject constructor(
     }
 
     private fun shuffleQuestionAnswers(question: Question): Question {
-        val shuffledAnswers = question.answers.shuffled()
+        val shuffledAnswers = question.answers.shuffled() //TODO: We copy shuffledAnswers into question, then reassign question?
         return question.copy(answers = shuffledAnswers)
     }
 

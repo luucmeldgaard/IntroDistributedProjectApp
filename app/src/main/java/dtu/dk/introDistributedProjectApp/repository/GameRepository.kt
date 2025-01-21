@@ -1,11 +1,14 @@
 package dtu.dk.introDistributedProjectApp.repository
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.LinkProperties
+import android.net.wifi.WifiManager
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
-import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.data.SpaceName
 import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
@@ -20,6 +23,13 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.update
+import dtu.dk.introDistributedProjectApp.data.Player
+import dtu.dk.introDistributedProjectApp.server.*
+import java.net.HttpURLConnection
+import java.net.NetworkInterface
+import android.text.format.Formatter
+import java.net.Inet4Address
 
 @Singleton
 class GameRepository @Inject constructor(
@@ -37,7 +47,9 @@ class GameRepository @Inject constructor(
     init {
         Log.i("GameRepository", "GameRepository created")
 
-        // Uncomment this when the server should be run from app
+        getLocalIpAddress()
+
+        // TODO: Uncomment this when the server should be run from app
         //launchServer()
         Thread.sleep(2000)
 
@@ -54,9 +66,26 @@ class GameRepository @Inject constructor(
         }
     }
 
-    fun joinGame() {
+    fun setHosting(hosting: Boolean) {
+        _gameStateLocal.update { currentState ->
+            currentState.copy(
+                host = hosting
+            )
+        }
+    }
+
+    fun joinGame(ip: String) {
         CoroutineScope(Dispatchers.IO).launch { //TODO: everything inside this coroutine shouldn't be sequential
-            initializeTupleSpaceConnection()
+
+            if (gameStateLocal.value.host) {
+                Log.i("GameRepository", "Host is joining game using '10.0.2.2'") // TODO: The IP might need to change to 'localhost'
+                launchServer()
+                initializeTupleSpaceConnection("10.0.2.2")
+            }
+            else {
+                Log.i("GameRepository", "Guest is joining game using IP: $ip")
+                initializeTupleSpaceConnection(ip) // TODO: The IP might need to change from 10.0.2.2 to localhost when launched on actual device
+            }
 
             for (p in gameStateLocal.value.players) {
                 Log.i("GameRepository", "Adding player to shared space: ${p.name}, ID: ${p.id}")
@@ -117,6 +146,20 @@ class GameRepository @Inject constructor(
         }
     }
 
+    @SuppressLint("ServiceCast")
+    fun getLocalIpAddress(): String? {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val linkProperties: LinkProperties? = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)
+
+        val localIpAddress = linkProperties?.linkAddresses?.find {
+            it.address is Inet4Address
+        }?.address?.hostAddress
+
+        Log.i("GameRepository", "Local IP address: $localIpAddress")
+
+        return localIpAddress
+    }
+
     private fun launchServer() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -140,9 +183,9 @@ class GameRepository @Inject constructor(
 
     }
 
-    private suspend fun initializeTupleSpaceConnection() {
+    private suspend fun initializeTupleSpaceConnection(ip: String) {
         try {
-            tupleSpaceConnection = TupleSpaceConnection()
+            tupleSpaceConnection = TupleSpaceConnection(ip)
             Log.i("GameRepository", "TupleSpaceConnection initialized successfully")
         } catch (e: IOException) {
             Log.e("GameRepository", "Failed to initialize TupleSpaceConnection: ${e.message}")

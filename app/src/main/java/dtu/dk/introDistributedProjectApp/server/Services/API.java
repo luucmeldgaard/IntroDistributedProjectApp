@@ -1,14 +1,13 @@
 package dtu.dk.introDistributedProjectApp.server.Services;
 
-import com.google.gson.Gson;
-
 import java.io.IOException;
-import java.util.Collections;
+import java.net.URI;
 import java.util.List;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.google.gson.Gson;
+import okhttp3.*;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.List;
 
 public class API {
 
@@ -20,7 +19,7 @@ public class API {
     // Private constructor to prevent instantiation
     private API() {}
 
-    // Public method to provide access to the instance (Singleton Pattern)
+    // Public method to provide access to the instance
     public static API getInstance() {
         if (instance == null) {
             instance = new API();
@@ -29,27 +28,30 @@ public class API {
     }
 
     public List<WordDefinition> callUrbanDictionaryAPI(Params params) {
-        // Construct the URL with query parameters
         String url = BASE_URL + params.toQueryString();
 
-        // Create the GET request
+        // Build the HTTP request
         Request request = new Request.Builder()
                 .url(url)
+                .get()
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try {
+            // Execute the request and get the response
+            Response response = client.newCall(request).execute();
+
             if (response.isSuccessful() && response.body() != null) {
-                // Parse JSON response
+                // Parse the response JSON
                 String responseBody = response.body().string();
-                return gson.fromJson(responseBody, ApiResponse.class).getData();
+                ApiResponse apiResponse = gson.fromJson(responseBody, ApiResponse.class);
+                return apiResponse.getData();
             } else {
-                System.err.println("Error: " + response.code());
+                System.err.println("Error: " + (response.body() != null ? response.body().string() : "No response body"));
             }
         } catch (IOException e) {
             System.out.println("Error when calling API");
             e.printStackTrace();
         }
-
-        return Collections.emptyList(); // If it fails, return empty list
+        return List.of();
     }
 }

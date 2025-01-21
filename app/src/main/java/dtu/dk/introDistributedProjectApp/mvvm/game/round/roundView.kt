@@ -105,6 +105,17 @@ fun RoundView(
 
         }
 
+        Row(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = "IP address: " + roundUiModel.ipAddress,
+                color = Color.White,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(8.dp))
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()

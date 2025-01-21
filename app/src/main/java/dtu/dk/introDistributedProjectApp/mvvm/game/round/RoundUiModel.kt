@@ -23,4 +23,6 @@ data class RoundUiModel(
         name = "TORBEN",
         score = 99
     ),
+    val hosting: Boolean = false,
+    val ipAddress: String = "",
 )

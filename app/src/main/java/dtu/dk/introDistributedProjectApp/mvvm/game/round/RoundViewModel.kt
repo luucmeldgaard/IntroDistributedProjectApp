@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.data.Player
+import dtu.dk.introDistributedProjectApp.mvvm.start.StartUiModel
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +46,7 @@ class RoundViewModel @Inject constructor(
                     currentQuestion = gameStateLocal.question,
                     currentState = GameState.ANSWERING,
                     correctAnswer = gameStateLocal.correctAnswer,
-
+                    hosting = gameStateLocal.host,
                 )
             }
         } else if (gameStateLocal.state == GameState.SHOWING) {
@@ -56,6 +57,7 @@ class RoundViewModel @Inject constructor(
                 currentState.copy(
                     correctAnswer = gameStateLocal.correctAnswer,
                     currentState = GameState.SHOWING,
+                    hosting = gameStateLocal.host,
                     //currentScore = gameStateLocal.players.find { it.id == gameStateLocal.userUUID.toString() }?.score ?: 0
                 )
             }

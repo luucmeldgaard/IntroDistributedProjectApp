@@ -49,8 +49,8 @@ fun RoundView(
 
     Box (
         modifier = Modifier
-        .fillMaxSize()
-        .background(SpaceCadet),
+            .fillMaxSize()
+            .background(SpaceCadet),
     ) {
         Column(
             modifier = Modifier
@@ -189,6 +189,7 @@ fun RoundView(
                                 roundViewModel.onAnswerSelected(index)
                             }
                             roundViewModel.uiModel.value.selectedAnswer = index
+                            roundViewModel.uiModel.value.hasAnswered = true
                         },
                         enabled = roundUiModel.currentState == GameState.ANSWERING && !roundUiModel.hasAnswered // Always enabled to retain the button appearance. Should probably be disabled
                     ) {

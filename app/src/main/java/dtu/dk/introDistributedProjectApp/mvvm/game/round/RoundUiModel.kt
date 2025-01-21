@@ -25,5 +25,5 @@ data class RoundUiModel(
     ),
     val hosting: Boolean = false,
     val ipAddress: String = "",
-    val hasAnswered: Boolean = false
+    var hasAnswered: Boolean = false
 )

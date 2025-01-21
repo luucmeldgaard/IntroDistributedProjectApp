@@ -100,10 +100,10 @@ fun MainNavHost(
                             RoundView(roundViewModel)
                         }
                         composable(route = Screen.StartScreen.route) {
-                            StartView(navController, startViewModel)
+                            StartView(startViewModel)
                         }
                         composable(route = Screen.ScoreScreen.route) {
-                            ScoreboardView(navController, scoreboardViewModel)
+                            ScoreboardView(scoreboardViewModel)
                         }
                     }
                 }

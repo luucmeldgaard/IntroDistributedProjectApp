@@ -80,7 +80,8 @@ class GameRepository @Inject constructor(
             if (gameStateLocal.value.host) {
                 Log.i("GameRepository", "Host is joining game using '10.0.2.2'") // TODO: The IP might need to change to 'localhost'
                 launchServer()
-                initializeTupleSpaceConnection("10.0.2.2")
+                Thread.sleep(5000)
+                initializeTupleSpaceConnection("localhost")
             }
             else {
                 Log.i("GameRepository", "Guest is joining game using IP: $ip")

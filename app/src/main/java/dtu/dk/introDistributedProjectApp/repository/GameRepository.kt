@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkProperties
-import android.net.NetworkCapabilities
-import android.os.Build
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.data.GameState
@@ -17,18 +15,16 @@ import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
 import dtu.dk.introDistributedProjectApp.server.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jspace.RandomSpace
-import org.jspace.SequentialSpace
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.Inet4Address
 import java.net.URL
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,17 +51,14 @@ class GameRepository @Inject constructor(
         //launchServer()
         Thread.sleep(2000)
 
-        val player = Player(name = "tester", id = gameStateLocal.value.userUUID.toString(), score = 0)
-        val otherPlayer = Player(name = "tester2", id = "tester2", score = 0)
+        /*
+                _gameStateLocal.update { currentState ->
+                    currentState.copy(
+                        players = listOf(
 
-        _gameStateLocal.update { currentState ->
-            currentState.copy(
-                players = listOf(
-                    player,
-                    otherPlayer
-                ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
-            )
-        }
+                        ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
+                    )
+                }*/
     }
 
     fun setHosting(hosting: Boolean) {
@@ -88,7 +81,7 @@ class GameRepository @Inject constructor(
         }
     }
 
-    fun joinGame(ip: String) {
+    fun joinGame(ip: String, name: String) {
 
         Log.i("GameRepository", "Connection: ${isInternetAvailable(context).toString()}")
 
@@ -105,9 +98,20 @@ class GameRepository @Inject constructor(
                 initializeTupleSpaceConnection(ip) // The entered host ip from start(join) screen
             }
 
+
+            _gameStateLocal.update { currentState ->
+                currentState.copy(
+                    players = listOf(
+                        Player(name = name, id = UUID.randomUUID().toString())
+
+                    ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
+                )
+            }
+            // updateTuple(SpaceName.PLAYER, name, gameStateLocal.value.userUUID )
+
             for (p in gameStateLocal.value.players) {
                 Log.i("GameRepository", "Adding player to shared space: ${p.name}, ID: ${p.id}")
-                updateTuple(SpaceName.PLAYER, p.name, p.id)
+                updateTuple(SpaceName.PLAYER, name, gameStateLocal.value.userUUID)
             }
 
             var nextState: String

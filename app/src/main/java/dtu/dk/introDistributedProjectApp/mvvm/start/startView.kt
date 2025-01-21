@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import dtu.dk.introDistributedProjectApp.ui.theme.UrbanDictionaryYellow
 
 @Composable
@@ -37,6 +36,7 @@ fun StartView(
     val startUiModel by viewModel.uiModel.collectAsState()
 
     var enteredIP by remember { mutableStateOf("") }
+    var enteredName by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -61,9 +61,25 @@ fun StartView(
                 fontSize = 25.sp,
             )
 
+            TextField(
+                value = enteredName,
+                onValueChange = { enteredName = it },
+                placeholder = { Text("Enter you name") },
+                textStyle = TextStyle(color = Color.White),
+                singleLine = true,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            )
+
             FilledTonalButton(
                 onClick = {
-                    viewModel.startGame()
+                    viewModel.startGame(enteredName)
                 }
             ) {
                 Text(text = "Start Game")
@@ -81,12 +97,30 @@ fun StartView(
                     .padding(16.dp)
                     .fillMaxWidth(0.8f)
                     .padding(4.dp)
-            ) {
-                BasicTextField(
+            )
+
+            TextField(
+                value = enteredName,
+                onValueChange = { enteredName = it },
+                textStyle = TextStyle(color = Color.White),
+                singleLine = true,
+                placeholder = { Text("Enter you name") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
+            )
+
+            TextField(
                     value = enteredIP,
                     onValueChange = { enteredIP = it },
-                    textStyle = TextStyle(color = Color.Black),
+                textStyle = TextStyle(color = Color.White),
                     singleLine = true,
+                label = { Text("Enter IP") },
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth()
@@ -96,11 +130,12 @@ fun StartView(
                         )
                         .padding(16.dp)
                 )
-            }
+
+
 
             FilledTonalButton(
                 onClick = {
-                    viewModel.joinGame(enteredIP)
+                    viewModel.joinGame(enteredIP, enteredName)
                 }
             ) {
                 Text(text = "Join")

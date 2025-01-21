@@ -2,15 +2,12 @@ package dtu.dk.introDistributedProjectApp.mvvm.start
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dtu.dk.introDistributedProjectApp.data.GameState
-import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundUiModel
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
@@ -50,14 +47,14 @@ class StartViewModel @Inject constructor(
         }
     }
 
-    fun startGame() {
+    fun startGame(enteredName: String) {
         gameRepository.setHosting(true)
-        gameRepository.joinGame(uiModel.value.ipAddress)
+        gameRepository.joinGame(uiModel.value.ipAddress, enteredName)
     }
 
-    fun joinGame(enteredIp: String) {
+    fun joinGame(enteredIp: String, enteredName: String) {
         gameRepository.setHosting(false)
-        gameRepository.joinGame(enteredIp)
+        gameRepository.joinGame(enteredIp, enteredName)
     }
 
 }

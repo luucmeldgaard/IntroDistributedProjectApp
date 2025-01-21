@@ -69,7 +69,7 @@ class PlayerConnectionThread implements Runnable {
     public void run() {
         try {
             while (playerConnectionSpace.size() < 2) {
-                sleep(1000);
+                sleep(200);
             }
             gameStateSpace.put("QUESTIONS");
 
@@ -278,7 +278,7 @@ class ScoreboardThread implements Runnable {
 
                 Thread.sleep(3000);
                 while (playerConnectionSpace.size() < 2) {
-                    Thread.sleep(3000);
+                    Thread.sleep(300);
                     scoreBoardSpace.getAll(new FormalField(Integer.class), new FormalField(String.class));
                 }
                 gameStateSpace.getAll(new FormalField(String.class));

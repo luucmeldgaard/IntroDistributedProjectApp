@@ -49,7 +49,7 @@ class GameRepository @Inject constructor(
 
         // TODO: Uncomment this when the server should be run from app
         //launchServer()
-        Thread.sleep(2000)
+        //Thread.sleep(2000)
 
         /*
                 _gameStateLocal.update { currentState ->
@@ -112,6 +112,7 @@ class GameRepository @Inject constructor(
             var nextState: String
 
             while (true) {
+
                 Log.i("GameRepository", "Waiting for next ANSWERING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.displayName) // TODO: <------------ HER SmiDer JEg SÅ SPILlerNE inD i TUPPleSpaceT
                 val players = tupleSpaceConnection.queryAllExternalPlayers()

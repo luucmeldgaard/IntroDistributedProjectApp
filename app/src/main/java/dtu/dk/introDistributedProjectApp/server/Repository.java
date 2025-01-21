@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class Repository {
 
-    public final static String GATE_URI = "tcp://localhost:9001/?keep";
+    public final static String GATE_URI = "tcp://0.0.0.0:9001/?keep";
 
     private final Space playerSpace;
     private final Space questionSpace;

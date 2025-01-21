@@ -57,7 +57,7 @@ class StartViewModel @Inject constructor(
 
     fun joinGame(enteredIp: String) {
         gameRepository.setHosting(false)
-        gameRepository.joinGame("10.0.2.2")
+        gameRepository.joinGame(enteredIp)
     }
 
 }

@@ -80,9 +80,9 @@ class GameRepository @Inject constructor(
         return try {
             val url = URL("https://www.google.com")
             val connection = url.openConnection() as HttpURLConnection
-            connection.connectTimeout = 5000 // 5 seconds timeout
+            connection.connectTimeout = 5000
             connection.connect()
-            connection.responseCode == 200 // HTTP OK
+            connection.responseCode == 200
         } catch (e: Exception) {
             false
         }

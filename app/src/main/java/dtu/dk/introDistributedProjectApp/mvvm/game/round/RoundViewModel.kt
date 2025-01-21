@@ -43,6 +43,7 @@ class RoundViewModel @Inject constructor(
             // TODO: enable buttons
             _uiModel.update { currentState ->
                 currentState.copy(
+                    hasAnswered = false,
                     currentQuestion = gameStateLocal.question,
                     currentState = GameState.ANSWERING,
                     correctAnswer = gameStateLocal.correctAnswer,
@@ -104,16 +105,9 @@ class RoundViewModel @Inject constructor(
 
         Log.i("onAnswerSelected", "onAnswerSelected has been called")
 
-        /*
-        if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected TODO: Hvorfor kan man de-selecte et svar? Det virker lidt kogt når svaret bliver sendt med det samme
-            selectedAnswer = 0 // deselects all by setting to 0
-        }
-
-         */
-
-        //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
         _uiModel.update { currentState ->
             currentState.copy(
+                hasAnswered = true
                 //selectedAnswer = selectedAnswer
             )
         }

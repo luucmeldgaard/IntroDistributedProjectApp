@@ -147,23 +147,23 @@ fun RoundView(
 
                 if(roundUiModel.currentState == GameState.ANSWERING){ //TODO: Find nicer colors
                     if (roundUiModel.selectedAnswer == -1){
-                        ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                        ButtonDefaults.buttonColors(containerColor = UrbanDictionaryYellow, disabledContainerColor = UrbanDictionaryYellow)
                     } else {
                         if (index == roundUiModel.selectedAnswer){
-                            ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                            ButtonDefaults.buttonColors(containerColor = UrbanDictionaryYellow, disabledContainerColor = UrbanDictionaryYellow)
                         } else {
-                            ButtonDefaults.buttonColors(Color.DarkGray)
+                            ButtonDefaults.buttonColors(containerColor = Color.DarkGray, disabledContainerColor = Color.DarkGray)
                         }
                     }
 
                 } else{
                     if (index == roundUiModel.correctAnswer){
-                        ButtonDefaults.buttonColors(Color.Green)
+                        ButtonDefaults.buttonColors(containerColor = Color.Green, disabledContainerColor = Color.Green)
                     } else if (index == roundUiModel.selectedAnswer){
-                        ButtonDefaults.buttonColors(Color.Red)
+                        ButtonDefaults.buttonColors(containerColor = Color.Red, disabledContainerColor =Color.Red)
                     }
                     else {
-                        ButtonDefaults.buttonColors(Color.DarkGray)
+                        ButtonDefaults.buttonColors(containerColor = Color.DarkGray, disabledContainerColor = Color.DarkGray)
                     }
                 }
             }
@@ -184,12 +184,13 @@ fun RoundView(
                         colors = getButtonColors(index), // Button color logic
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
+                            Log.d("RoundView", "OnClick has been called")
                             if (roundUiModel.currentState == GameState.ANSWERING) {
                                 roundViewModel.onAnswerSelected(index)
                             }
                             roundViewModel.uiModel.value.selectedAnswer = index
                         },
-                        enabled = true//roundUiModel.currentState == GameState.ANSWERING // Always enabled to retain the button appearance. Should probably be disabled
+                        enabled = roundUiModel.currentState == GameState.ANSWERING && !roundUiModel.hasAnswered // Always enabled to retain the button appearance. Should probably be disabled
                     ) {
                         Text(
                             text = roundUiModel.currentQuestion.answers[index], fontSize = 14.sp,

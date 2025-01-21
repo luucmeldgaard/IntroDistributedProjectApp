@@ -110,7 +110,7 @@ class RoundViewModel @Inject constructor(
     private fun runTimer() {
         previousTimer?.cancel()
         previousTimer = viewModelScope.launch {
-            for (i in 30 downTo 0) { //TODO: 30 seconds is hardcoded
+            for (i in 30 downTo 0) {
                 if(_uiModel.value.currentState != GameState.ANSWERING){
                     _uiModel.update { currentState ->
                         currentState.copy(
@@ -126,7 +126,7 @@ class RoundViewModel @Inject constructor(
                 }
                 kotlinx.coroutines.delay(1000)
             }
-            //onTimerFinished() //TODO: This doesn't do anything
+
         }
     }
 

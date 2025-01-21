@@ -1,4 +1,7 @@
 package dtu.dk.introDistributedProjectApp.mvvm.start
 
-class StartUiModel {
-}
+data class StartUiModel (
+    val createGame: Boolean = false,
+    val joinGame: Boolean = false,
+    val ipAddress: String = "",
+)

@@ -3,184 +3,276 @@ package dtu.dk.introDistributedProjectApp.server;
 import dtu.dk.introDistributedProjectApp.server.Services.API;
 import dtu.dk.introDistributedProjectApp.server.Services.Params;
 import dtu.dk.introDistributedProjectApp.server.Services.WordDefinition;
-import org.jspace.ActualField;
-import org.jspace.FormalField;
-import org.jspace.Space;
+import org.jspace.*;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static java.lang.Thread.sleep;
 
 public class Main {
+    public static void main(String[] args) throws Exception {
+        SpaceRepository repository = new SpaceRepository();
 
-    private static Map<String, Integer> stalePlayers = new HashMap<String, Integer>();
+        // ['NAME', 'UUID']
+        SequentialSpace playerConnectionSpace = new SequentialSpace();
+        // ['TEXT', Integer] - int denotes the type. 0 for wrong, 1 for right, 2 for meaning
+        RandomSpace questionSpace = new RandomSpace();
 
+        // ['TEXT', 'UUID'] - Answer from client
+        // ['TEXT', 'UUID', Long] - Answer with timestampo added - Long is the time it takes to give an answer
+        SequentialSpace answerSpace = new SequentialSpace();
+        // [Integer, 'UUID']
+        SequentialSpace scoreboardSpace = new SequentialSpace();
+        // ['STATE']
+        SequentialSpace gameStateSpace = new SequentialSpace();
 
-    public static void main(String[] argv) throws InterruptedException, IOException {
-        Repository r = new Repository();
-        Space playerSpace = r.getPlayerSpace();
-        Space questionSpace = r.getQuestionSpace();
-        Space gameStateSpace = r.getGameStateSpace();
-        Space answerSpace = r.getAnswerSpace();
+        // Add spaces to the repository
+        repository.add("playerConnectionSpace", playerConnectionSpace);
+        repository.add("questionSpace", questionSpace);
+        repository.add("answerSpace", answerSpace);
+        repository.add("scoreboardSpace", scoreboardSpace);
+        repository.add("gameStateSpace", gameStateSpace);
 
-        AnswerGetter answerGetter = new AnswerGetter(answerSpace);
+        // Open a gate for remote connections
+        repository.addGate("tcp://0.0.0.0:9001/?keep");
 
-        int waitTime = 30;
-        int countOfRounds = 0;
-
-        System.out.println("waiting player 1");
-        playerSpace.query(new FormalField(String.class), new FormalField(String.class), new FormalField(Integer.class));
-        System.out.println("waiting player 2");
-        playerSpace.query(new FormalField(String.class), new FormalField(String.class), new FormalField(Integer.class));
-        System.out.println("Starting game");
-
-        while (true) {
-            // New round
-            countOfRounds++;
-
-
-            // --------------------------
-            // Answering state
-            // The users can now answer within a given time frame or till
-            // all users have answered before timer runs out
-
-            // Retrieve and send the next question (question, answer (correct), answer, answer)
-            String correctAnswer = getNewQnA(questionSpace);
-
-            gameStateSpace.put("ANSWERING");
-            System.out.println("ANSWERING STATE");
-            long startTimestamp = System.currentTimeMillis();
-
-            List<UserAnswerWithTimestamp> answersWrapper = answerGetter.getAnswers(waitTime, playerSpace.size());
-            System.out.println("Answers received: " + answersWrapper.size());
-
-            // --------------------------
-            // Showing State
-            // The answer and score updates are shared with the clients
-            updateAllScores(answersWrapper, startTimestamp, correctAnswer, playerSpace, waitTime);
-            Thread.sleep(200);
-            gameStateSpace.getAll(new FormalField(String.class));
-            gameStateSpace.put("SHOWING");
-            System.out.println("SHOWING STATE");
-
-            Thread.sleep(3000);
-
-            answerSpace.getAll(new FormalField(String.class), new FormalField(String.class));
-            gameStateSpace.getAll(new FormalField(String.class)); // Reset state
-
-            // --------------------------
-            // Final State
-            // All rounds have been run and the game ends
-            if (countOfRounds == 10) {
-                System.out.println("Round 10 completed. Transitioning to FINAL...");
-                gameStateSpace.put("FINAL");
-                System.out.println("FINAL STATE");
-                Thread.sleep(200);
-                countOfRounds = 200; // TODO: Why is this here?
-
-                // TODO: why are we checking this? Shouldn't the game just end until you start the game again?
-                if (playerSpace.size() < 2) {
-                    System.out.println("Not enough players to continue. Exiting...");
-                    break;
-                }
-            }
-            gameStateSpace.getAll(new FormalField(String.class));
-        }
-    }
-
-    /*private static void checkForStalePlayers(List<UserAnswerWithTimestamp> answers, Space playerSpace) {
-        Set<String> playerIDs = new HashSet<>();
-        try {
-            // Fetch all players currently in the playerSpace
-            List<Object[]> rawData = playerSpace.queryAll();
-            for (Object[] tuple : rawData) {
-                playerIDs.add((String) tuple[1]);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e + " This shouldn't be interrupted");
-        }
-
-        // Create a set of IDs from players who answered this round
-        Set<String> playersWhoAnswered = new HashSet<>();
-        for (UserAnswerWithTimestamp answer : answers) {
-            playersWhoAnswered.add(answer.ID);
-        }
-
-        // Update the stalePlayers map
-        for (String playerID : playerIDs) {
-            if (!playersWhoAnswered.contains(playerID)) {
-                // Increment the count for players who did not answer
-                stalePlayers.put(playerID, stalePlayers.getOrDefault(playerID, 0) + 1);
-            } else {
-                // Reset the count for players who did answer
-                stalePlayers.put(playerID, 0);
-            }
-        }
-
-        // Remove players who have been stale for 2 or more rounds
-        for (Iterator<Map.Entry<String, Integer>> iterator = stalePlayers.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry<String, Integer> entry = iterator.next();
-            if (entry.getValue() >= 2) {
-                System.out.println("Player " + entry.getKey() + " has been removed for being inactive for 2 rounds.");
-                try {
-                    playerSpace.get(new FormalField(String.class), new ActualField(entry.getKey()), new FormalField(Integer.class));
-                    System.out.printf("Player has been removed");
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Error removing stale player: " + e.getMessage());
-                }
-                iterator.remove();
-            }
-        }
-    }*/
-
-
-
-    private static void updateAllScores(List<UserAnswerWithTimestamp> answerWrapper, long startTimestamp, String correctAnswer, Space players, int waitTime) {
-        for (UserAnswerWithTimestamp answer : answerWrapper) {
-            int score = calculateScore(answer, startTimestamp, correctAnswer, waitTime);
-            try {
-                updateScore(players, answer.ID, score);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static int calculateScore(UserAnswerWithTimestamp answerWrapper, long startTimestamp, String correctAnswer, int waitTime) {
-        long responseTime = answerWrapper.timeStamp - startTimestamp;
-        int points = 0;
-
-        if (answerWrapper.answer.equalsIgnoreCase(correctAnswer)) {
-            points = (int) Math.max(0, (100 - (responseTime / waitTime)) * 100);
-        }
-        return points;
-    }
-
-    private static void updateScore(Space players, String playerID, int score) throws InterruptedException {
-        Object[] tuple = players.get(new FormalField(String.class), new ActualField(playerID), new FormalField(Integer.class));
-        int newScore = (int) tuple[2] + score;
-        players.put(tuple[0], tuple[1], newScore);
-    }
-
-    private static String getNewQnA(Space question) throws InterruptedException {
-
-        var api = API.getInstance();
-        Params params = new Params();
-        params.setLimit("3");
-        List<WordDefinition> response = api.callUrbanDictionaryAPI(params);
-
-        if (response.size() < 3) {
-            System.out.println("Not enough words retrieved from the API.");
-            return "Not enough words retrieved from the API.";
-        }
-
-        question.getAll(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
-        String meaning = response.get(0).getMeaning();
-        String word1 = response.get(0).getWord();
-        String word2 = response.get(1).getWord();
-        String word3 = response.get(2).getWord();
-        question.put(meaning, word1, word2, word3);
-        return word1;
+        // Start threads
+        new Thread(new PlayerConnectionThread(playerConnectionSpace, gameStateSpace, scoreboardSpace)).start();
+        new Thread(new QuestionThread(questionSpace, gameStateSpace)).start();
+        new Thread(new AnswerThread(answerSpace, playerConnectionSpace, gameStateSpace)).start();
+        new Thread(new ScoreboardThread(scoreboardSpace, playerConnectionSpace, questionSpace, gameStateSpace, answerSpace, 10)).start();
+        System.out.println("Repositories created and worker threads started, awaiting players");
     }
 }
 
+
+class PlayerConnectionThread implements Runnable {
+    private final SequentialSpace playerConnectionSpace;
+    private final SequentialSpace gameStateSpace;
+    private final Space scoreboardSpace;
+
+    public PlayerConnectionThread(SequentialSpace playerConnectionSpace, SequentialSpace gameStateSpace, Space scoreboardSpace) {
+        this.playerConnectionSpace = playerConnectionSpace;
+        this.gameStateSpace = gameStateSpace;
+        this.scoreboardSpace = scoreboardSpace;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                if (playerConnectionSpace.size() > 1
+                        && gameStateSpace.getp(new ActualField("STOP")) != null) {
+                    gameStateSpace.getAll(new FormalField(String.class));
+                    gameStateSpace.put("QUESTIONS");
+                    System.out.println("Setting game state to QUESTIONS");
+
+                } else if (playerConnectionSpace.size() < 2) {
+                    gameStateSpace.getAll(new FormalField(String.class));
+                    gameStateSpace.put("STOP");
+                    scoreboardSpace.getAll(new FormalField(Integer.class), new FormalField(String.class));
+                    System.out.println("Setting game state to STOP; Game is paused");
+                }
+                sleep(1000); // Simulate delay
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+class QuestionThread implements Runnable {
+    private final RandomSpace questionSpace;
+    private final SequentialSpace gameStateSpace;
+
+    public QuestionThread(RandomSpace questionSpace, SequentialSpace gameStateSpace) {
+        this.questionSpace = questionSpace;
+        this.gameStateSpace = gameStateSpace;
+    }
+
+    @Override
+    public void run() {
+
+        try {
+            while (true) {
+                gameStateSpace.query(new ActualField("QUESTIONS"));
+                getNewQnA(questionSpace);
+                gameStateSpace.getAll(new FormalField(String.class));
+                gameStateSpace.put("ANSWERING");
+                System.out.println("Setting game state to ANSWERING");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void getNewQnA(RandomSpace questionSpace) throws InterruptedException {
+        var api = API.getInstance();
+        Params params = new Params();
+        params.setLimit("3");
+        List<WordDefinition> response; // = api.callUrbanDictionaryAPI(params);
+        String meaning = "";//response.get(0).getMeaning();
+        String trueDef = "";//response.get(0).getWord();
+        String word2 = "";//response.get(1).getWord();
+        String word3 = "";//response.get(2).getWord();
+
+        int tries = 0;
+        do {
+            tries++;
+            response = api.callUrbanDictionaryAPI(params);
+            questionSpace.getAll(new FormalField(String.class), new FormalField(Integer.class));
+            meaning = response.get(0).getMeaning();
+            trueDef = response.get(0).getWord();
+            word2 = response.get(1).getWord();
+            word3 = response.get(2).getWord();
+            int i = 1;
+            while (meaning.length() > 700 && i < 4) {
+                System.out.println("Meaning wasn't approved, retrying.");
+                meaning = response.get(i).getMeaning();
+                i++;
+            }
+        } while (response.size() < 3 || (trueDef.length() > 200 || word2.length() > 200 || word3.length() > 200) && tries < 15);
+
+        meaning = cleanMeaning(meaning, trueDef);
+
+        questionSpace.put(trueDef, 1);
+        questionSpace.put(word2, 0);
+        questionSpace.put(word3, 0);
+        questionSpace.put(meaning, 2);
+    }
+
+    private static String cleanMeaning(String stringToClean, String toCleanFor) {
+
+        Pattern pattern = Pattern.compile(Pattern.quote(toCleanFor), Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(stringToClean);
+
+        // Replace all case-insensitive occurrences of `toCleanFor` with "________"
+        return matcher.replaceAll("________");
+    }
+}
+
+// Thread 3: Answer Thread
+class AnswerThread implements Runnable {
+    private final SequentialSpace answerSpace;
+    private final SequentialSpace playerConnectionSpace;
+    private final SequentialSpace gameStateSpace;
+    private final AnswerGetter answerGetter;
+
+    public AnswerThread(SequentialSpace answerSpace, SequentialSpace playerConnectionSpace, SequentialSpace gameStateSpace) {
+        this.answerSpace = answerSpace;
+        this.playerConnectionSpace = playerConnectionSpace;
+        this.gameStateSpace = gameStateSpace;
+        this.answerGetter = new AnswerGetter(answerSpace, playerConnectionSpace, 30);
+    }
+
+    @Override
+    public void run() {
+
+        try {
+            while (true) {
+
+                gameStateSpace.query(new ActualField("ANSWERING"));
+                Long currentTime = System.currentTimeMillis();
+                List<UserAnswerWithTimestamp> answersWithTimestamps = answerGetter.getAnswers();
+                for (UserAnswerWithTimestamp answerWithTimestamp : answersWithTimestamps) {
+                    System.out.println("To answerSpace, adding: " + answerWithTimestamp.answer + " " + answerWithTimestamp.ID + " " + answerWithTimestamp.timeStamp);
+                    answerSpace.put(answerWithTimestamp.answer, answerWithTimestamp.ID, (answerWithTimestamp.timeStamp - currentTime));
+                }
+
+                gameStateSpace.getAll(new ActualField("ANSWERING"));
+
+                gameStateSpace.put("SHOWING"); //Creating a new thread for this seems overkill
+                System.out.println("Setting game state to SHOWING");
+
+                Thread.sleep(3000L);
+                gameStateSpace.get(new ActualField("SHOWING"));
+                gameStateSpace.put("SCOREBOARD");
+                System.out.println("Setting game state to SCOREBOARD");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Thread 4: Scoreboard Thread
+class ScoreboardThread implements Runnable {
+    private final SequentialSpace scoreBoardSpace;
+    private final SequentialSpace playerConnectionSpace;
+    private final SequentialSpace gameStateSpace;
+    private final SequentialSpace questionSpace;
+    private final SequentialSpace answerSpace;
+    private final int maxRounds;
+
+    public ScoreboardThread(SequentialSpace scoreBoardSpace, SequentialSpace playerConnectionSpace, RandomSpace questionSpace, SequentialSpace gameStateSpace, SequentialSpace answerSpace, int maxRounds) {
+        this.scoreBoardSpace = scoreBoardSpace;
+        this.playerConnectionSpace = playerConnectionSpace;
+        this.questionSpace = questionSpace;
+        this.gameStateSpace = gameStateSpace;
+        this.answerSpace = answerSpace;
+        this.maxRounds = maxRounds;
+    }
+
+    @Override
+    public void run() {
+
+        try {
+            int round = 0;
+            while (true) {
+                round++;
+                System.out.println("Current round: " + round);
+                gameStateSpace.query(new ActualField("SCOREBOARD"));
+                String correct_answer = (String) questionSpace.query(new FormalField(String.class), new ActualField(1))[0];
+
+                List<Object[]> allAnswers = answerSpace.getAll(new FormalField(String.class), new FormalField(String.class), new FormalField(Long.class));
+
+                for (Object[] _answer : allAnswers) {
+                    String answerWord = (String) _answer[0];
+                    String ID = (String) _answer[1];
+                    Long timeTaken = (Long) _answer[2];
+                    if (answerWord.equals(correct_answer)) {
+                        System.out.print("Correct answer: " + correct_answer + " from: " + ID);
+                        Object[] prevScore = scoreBoardSpace.getp(new FormalField(Integer.class), new ActualField(ID));
+                        Integer scoreToAdd = calculateScore(timeTaken, 30);
+                        System.out.print(", and therefore, their score is increased by " + scoreToAdd);
+                        if (prevScore != null) {
+                            scoreToAdd += (Integer) prevScore[0];
+                        }
+                        scoreBoardSpace.put(scoreToAdd, ID);
+                        System.out.println(", now totalling " + scoreToAdd);
+                    } else {
+                        System.out.println("Incorrect answer: " + correct_answer + " from: " + ID);
+                    }
+                }
+
+
+                Thread.sleep(3000);
+                gameStateSpace.getAll(new FormalField(String.class));
+                gameStateSpace.put("QUESTIONS");
+                System.out.println("Setting game state to QUESTIONS");
+
+                if (round == maxRounds) {
+                    round = 0;
+                    scoreBoardSpace.getAll(new FormalField(Integer.class), new FormalField(String.class));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Integer calculateScore(Long responseTime, Integer waitTime) {
+
+        Long waitTimeInMillis = waitTime * 1000L;
+        // Perform the calculation using floating-point division
+        double score = Math.max(0, 100 - ((double) responseTime / waitTimeInMillis) * 100);
+        // Cast to Integer and return
+        return (int) score;
+    }
+
+}

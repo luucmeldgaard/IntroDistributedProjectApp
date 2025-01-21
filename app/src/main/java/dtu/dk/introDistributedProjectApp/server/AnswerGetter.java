@@ -8,20 +8,25 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class AnswerGetter {
-    private Space space;
+    private final Space answerSpace;
+    private final Space playerConnectionSpace;
     private CountDownLatch latch = new CountDownLatch(1);
     private List<UserAnswerWithTimestamp> answersWithTimestamps;
+    private final int waitTime;
 
-    public AnswerGetter(Space space) {
+    public AnswerGetter(Space answerSpace, Space playerSpace, int waitTime) {
         this.answersWithTimestamps = new LinkedList<>();
-        this.space = space;
+        this.answerSpace = answerSpace;
+        this.playerConnectionSpace = playerSpace;
+        this.waitTime = waitTime;
     }
 
-    public List<UserAnswerWithTimestamp> getAnswers(int waitTime, int maxPlayerCount) {
+    public List<UserAnswerWithTimestamp> getAnswers() {
         latch = new CountDownLatch(1); // Reset latch yo
 
         InternalTimer internalTimer = new InternalTimer(waitTime, latch);
-        AnswerCounter answerCounter = new AnswerCounter(maxPlayerCount, latch, space);
+        AnswerCounter answerCounter = new AnswerCounter(playerConnectionSpace, latch, answerSpace);
+
 
         internalTimer.start();
         answerCounter.start();
@@ -50,8 +55,8 @@ public class AnswerGetter {
 }
 
 class InternalTimer extends Thread {
-    private int wait;
-    private CountDownLatch latch;
+    private final int wait;
+    private final CountDownLatch latch;
 
     InternalTimer(int wait, CountDownLatch latch) {
         this.wait = wait;
@@ -71,16 +76,16 @@ class InternalTimer extends Thread {
 }
 
 class AnswerCounter extends Thread {
-    private final int maxPlayerCount;
+    private final Space playerSpace;
     private final List<UserAnswerWithTimestamp> answers;
     private final CountDownLatch latch;
-    private Space space;
+    private final Space answerSpace;
     private boolean done = false;
 
-    AnswerCounter(int maxPlayerCount, CountDownLatch latch, Space space) {
-        this.maxPlayerCount = maxPlayerCount;
+    AnswerCounter(Space playerSpace, CountDownLatch latch, Space answerSpace) {
+        this.playerSpace = playerSpace;
         this.latch = latch;
-        this.space = space;
+        this.answerSpace = answerSpace;
         answers = new LinkedList<UserAnswerWithTimestamp>();
     }
 
@@ -93,16 +98,16 @@ class AnswerCounter extends Thread {
 
     @Override
     public void run() {
-        if (space == null) {
+        if (answerSpace == null) {
             throw new NullPointerException("Class was not instantiated correctly, or space passed was null");
         }
-        while (answers.size() < maxPlayerCount) {
+        while (answers.size() < playerSpace.size()) {
+            System.out.println("Answers size is:" + answers.size());
             try {
-
-                Object[] tuple = space.get(new FormalField(String.class), new FormalField(String.class));
+                Object[] tuple = answerSpace.get(new FormalField(String.class), new FormalField(String.class));
                 String answerString = (String) tuple[0];
                 String ID = (String) tuple[1];
-                Long timeStamp = System.currentTimeMillis();
+                long timeStamp = System.currentTimeMillis();
                 UserAnswerWithTimestamp ans = new UserAnswerWithTimestamp();
                 ans.answer = answerString;
                 ans.ID = ID;

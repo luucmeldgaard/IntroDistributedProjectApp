@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 import dtu.dk.introDistributedProjectApp.data.SpaceName.*;
 public class TupleSpaceConnection {
-    private final static String REMOTE_URI = "tcp://10.0.2.2:9001/"; // Use localhost instead when running server in app
+    private static String REMOTE_URI = "tcp://10.0.2.2:9001/"; // Use localhost instead when running server in app
     private Space remoteSpace;
     private Space playerSpace;
     private Space questionSpace;
@@ -30,8 +30,10 @@ public class TupleSpaceConnection {
     private Boolean connected = false;
 
 
-    public TupleSpaceConnection() throws IOException, InterruptedException {
+    public TupleSpaceConnection(String ip) throws IOException, InterruptedException {
         Log.i("TupleSpaceConnection", "Hello from TupleSpaceConnection");
+
+        REMOTE_URI = "tcp://" + ip + ":9001/";
 
         while (true) {
             ExecutorService executor = null;

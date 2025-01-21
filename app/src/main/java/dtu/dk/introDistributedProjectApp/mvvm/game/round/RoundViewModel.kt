@@ -51,7 +51,7 @@ class RoundViewModel @Inject constructor(
         } else if (gameStateLocal.state == GameState.SHOWING) {
             //Log.i("RoundViewModel", "I ran 2")
             // TODO: disable buttons
-            clear()
+            //clear()
             _uiModel.update { currentState ->
                 currentState.copy(
                     correctAnswer = gameStateLocal.correctAnswer,
@@ -61,7 +61,7 @@ class RoundViewModel @Inject constructor(
             }
         } else if (gameStateLocal.state == GameState.FINAL) {
             Log.w("onGameStateUpdate", "Shouldn't something happen here?")
-            clear()
+            //clear()
         }
 
         _uiModel.update { currentState ->
@@ -76,8 +76,8 @@ class RoundViewModel @Inject constructor(
     }
 
     private fun runTimer() {
-        previousTimer?.cancel()
         previousTimer = viewModelScope.launch {
+            previousTimer?.cancel()
             for (i in 30 downTo 0) {
                 if(_uiModel.value.currentState != GameState.ANSWERING){
                     _uiModel.update { currentState ->
@@ -98,32 +98,25 @@ class RoundViewModel @Inject constructor(
         }
     }
 
-    fun onAnswerSelected(answer: Int) {
+    fun onAnswerSelected(selectedAnswer: Int) {
 
-        var selectedAnswer = answer + 1 // To account for 0-based index
         Log.i("onAnswerSelected", "onAnswerSelected has been called")
 
+        /*
         if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected TODO: Hvorfor kan man de-selecte et svar? Det virker lidt kogt når svaret bliver sendt med det samme
             selectedAnswer = 0 // deselects all by setting to 0
         }
 
+         */
+
         //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
-
-        viewModelScope.launch {
-            _uiModel.update { currentState ->
-                currentState.copy(
-                    selectedAnswer = selectedAnswer
-                )
-            }
+        _uiModel.update { currentState ->
+            currentState.copy(
+                //selectedAnswer = selectedAnswer
+            )
         }
         viewModelScope.launch {
-            gameRepository.sendAnswer(uiModel.value.currentQuestion.answers[selectedAnswer - 1])
-        }
-    }
-
-    fun onTimerFinished() {
-        viewModelScope.launch {
-            //gameRepository.sendAndReadyForNextQuestion(selectedAnswer)
+            gameRepository.sendAnswer(uiModel.value.currentQuestion.answers[selectedAnswer])
         }
     }
 
@@ -131,9 +124,9 @@ class RoundViewModel @Inject constructor(
         viewModelScope.launch {
             _uiModel.update { currentState ->
                 currentState.copy(
-                    selectedAnswer = 0,
+                    selectedAnswer = -1,
                     secondsLeft = 30,
-                    correctAnswer = 0,
+                    correctAnswer = -1,
                 )
             }
         }

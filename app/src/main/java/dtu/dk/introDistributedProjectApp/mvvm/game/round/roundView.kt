@@ -1,5 +1,6 @@
 package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -139,21 +140,25 @@ fun RoundView(
             }
 
             val getButtonColors: @Composable (Int) -> ButtonColors = { index ->
-                if (roundUiModel.currentState == GameState.SHOWING) {
-                    if (index == roundUiModel.correctAnswer) {
+
+                if(roundUiModel.currentState == GameState.ANSWERING){ //TODO: Find nicer colors
+                    if (roundUiModel.selectedAnswer == -1){
                         ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                    } else {
+                        if (index == roundUiModel.selectedAnswer){
+                            ButtonDefaults.buttonColors(UrbanDictionaryYellow)
+                        } else {
+                            ButtonDefaults.buttonColors(Color.DarkGray)
+                        }
                     }
-                    else if (roundUiModel.selectedAnswer == index + 1 ) {
-                        ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
+
+                } else{
+                    if (index == roundUiModel.correctAnswer){
+                        ButtonDefaults.buttonColors(Color.Green)
+                    } else if (index == roundUiModel.selectedAnswer){
+                        ButtonDefaults.buttonColors(Color.Red)
                     }
                     else {
-                        ButtonDefaults.buttonColors(Color.DarkGray)
-                    }
-                }
-                else {
-                    if (roundUiModel.selectedAnswer == index + 1 || roundUiModel.selectedAnswer == 0) {
-                        ButtonDefaults.buttonColors(roundUiModel.buttonColors[index])
-                    } else {
                         ButtonDefaults.buttonColors(Color.DarkGray)
                     }
                 }
@@ -175,14 +180,20 @@ fun RoundView(
                         colors = getButtonColors(index), // Button color logic
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
+
                             if (roundUiModel.currentState == GameState.ANSWERING) {
                                 roundViewModel.onAnswerSelected(index)
+                            } else {
+                                Log.e("roundView", "Button was clicked outside of answering state")
                             }
+                            roundViewModel.uiModel.value.selectedAnswer = index
                         },
                         enabled = true//roundUiModel.currentState == GameState.ANSWERING // Always enabled to retain the button appearance. Should probably be disabled
                     ) {
                         Text(
-                            text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp,
+                            text = roundUiModel.currentQuestion.answers[index], fontSize = 14.sp,
+                            color = Color.DarkGray
+                            /*
                             color = if (roundUiModel.currentState == GameState.SHOWING) {
                                 if (index == roundUiModel.correctAnswer) {
                                     Color.Black
@@ -192,6 +203,8 @@ fun RoundView(
                             } else {
                                 Color.White
                             }
+
+                             */
                         )
                     }
                 }

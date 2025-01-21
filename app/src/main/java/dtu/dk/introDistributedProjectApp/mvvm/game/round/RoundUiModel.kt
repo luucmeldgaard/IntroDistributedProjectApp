@@ -10,13 +10,13 @@ import dtu.dk.introDistributedProjectApp.ui.theme.MyrtleGreen
 
 data class RoundUiModel(
     val currentScore: Int = 2,
-    val currentQuestion: Question = Question("Loading...", listOf("Option one", "Option two", "Option three"), 1),
+    val currentQuestion: Question = Question("Loading...", listOf("Option one", "Option two", "Option three")/*, 1*/), //TODO: Revert
     val currentRound: Int = 3,
     val secondsLeft: Int = 30,
     val finished: Boolean = false,
     val buttonColors: List<Color> = listOf(ChineseViolet, AirForceBlue, MyrtleGreen),
-    val selectedAnswer: Int = 0,
-    val correctAnswer: Int = 0,
+    var selectedAnswer: Int = -1,
+    val correctAnswer: Int = -1,
     val currentState: GameState = GameState.ANSWERING,
     val player: Player = Player(
         id = "9987",

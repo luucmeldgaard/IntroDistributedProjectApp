@@ -48,9 +48,9 @@ class ScoreboardViewModel @Inject constructor(
         sortPlayersByScore(gameStateLocal.players)
 
         if (gameStateLocal.state == GameState.ANSWERING) {
-            Log.e("ScoreboardViewModel", "Somehow in ANSWERING state. This should not happen.")
+            //Log.e("ScoreboardViewModel", "Somehow in ANSWERING state. This should not happen.")
         } else if (gameStateLocal.state == GameState.SHOWING) {
-            Log.e("ScoreboardViewModel", "Somehow in SHOWING state. This should not happen.")
+            //Log.e("ScoreboardViewModel", "Somehow in SHOWING state. This should not happen.")
         } else if (gameStateLocal.state == GameState.FINAL) {
 
         }

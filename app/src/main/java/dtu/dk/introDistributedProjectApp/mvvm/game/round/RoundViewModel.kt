@@ -47,6 +47,7 @@ class RoundViewModel @Inject constructor(
                     currentState = GameState.ANSWERING,
                     correctAnswer = gameStateLocal.correctAnswer,
                     hosting = gameStateLocal.host,
+                    ipAddress = gameRepository.getLocalIpAddress() ?: "Not connected",
                 )
             }
         } else if (gameStateLocal.state == GameState.SHOWING) {

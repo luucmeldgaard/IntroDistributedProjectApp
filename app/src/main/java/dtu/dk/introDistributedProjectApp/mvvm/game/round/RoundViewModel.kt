@@ -127,7 +127,7 @@ class RoundViewModel @Inject constructor(
         var selectedAnswer = answer + 1 // To account for 0-based index
         Log.i("onAnswerSelected", "onAnswerSelected has been called")
 
-        if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected
+        if (selectedAnswer == _uiModel.value.selectedAnswer) { // Answer already selected TODO: Hvorfor kan man de-selecte et svar? Det virker lidt kogt når svaret bliver sendt med det samme
             selectedAnswer = 0 // deselects all by setting to 0
         }
 

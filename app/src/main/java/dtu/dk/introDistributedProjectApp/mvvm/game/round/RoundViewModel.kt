@@ -44,6 +44,7 @@ class RoundViewModel @Inject constructor(
                 currentState.copy(
                     currentQuestion = gameStateLocal.question,
                     currentState = GameState.ANSWERING,
+                    correctAnswer = gameStateLocal.correctAnswer,
 
                 )
             }

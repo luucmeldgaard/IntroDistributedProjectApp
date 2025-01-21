@@ -107,18 +107,26 @@ class GameRepository @Inject constructor(
                     ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
                 )
             }
-            // updateTuple(SpaceName.PLAYER, name, gameStateLocal.value.userUUID )
-
-            for (p in gameStateLocal.value.players) {
-                Log.i("GameRepository", "Adding player to shared space: ${p.name}, ID: ${p.id}")
-                updateTuple(SpaceName.PLAYER, name, gameStateLocal.value.userUUID)
-            }
+            updateTuple(SpaceName.PLAYER, name, gameStateLocal.value.userUUID.toString())
 
             var nextState: String
 
             while (true) {
                 Log.i("GameRepository", "Waiting for next ANSWERING game state")
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.ANSWERING.displayName) // TODO: <------------ HER SmiDer JEg SÅ SPILlerNE inD i TUPPleSpaceT
+                val players = tupleSpaceConnection.queryAllExternalPlayers()
+                for (player in players){
+                    player.score = tupleSpaceConnection.queryScoreUpdate(player.id)
+                }
+
+                for(player in players){
+                    Log.i("Gamerepository", "Name: " + player.name + ", ID: " + player.id)
+                }
+                _gameStateLocal.update { currentState ->
+                    currentState.copy(
+                        players = players
+                        ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
+                }
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "ANSWERING STATE")

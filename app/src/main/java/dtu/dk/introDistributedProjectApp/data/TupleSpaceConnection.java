@@ -8,6 +8,7 @@ import org.jspace.RemoteSpace;
 import org.jspace.Space;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -139,6 +140,20 @@ public class TupleSpaceConnection {
             Log.w("TupleSpaceConnection", "Player was not found on scoreboard. Assuming score is 0");
             return 0;
         }
+    }
+
+    public final List<Player> queryAllExternalPlayers() throws InterruptedException {
+        Space targetSpace = spaces.get(SpaceName.PLAYER);
+        List<Object[]> objects = targetSpace.queryAll(new FormalField(String.class), new FormalField(String.class));
+        if(objects.size() == 0){
+            throw new IllegalArgumentException("There are zero players");
+        }
+        List<Player> players = new LinkedList<>();
+
+        for (Object[] object : objects){
+            players.add(new Player((String) object[1],(String) object[0], 0));
+        }
+        return players;
     }
 
     public final List<Map.Entry<String, Integer>> queryQuestion() throws InterruptedException {

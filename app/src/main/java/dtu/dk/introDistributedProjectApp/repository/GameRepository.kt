@@ -37,7 +37,7 @@ class GameRepository @Inject constructor(
     init {
         Log.i("GameRepository", "GameRepository created")
 
-        // TODO: Uncomment this when the server should be run from app
+        // Uncomment this when the server should be run from app
         //launchServer()
         Thread.sleep(2000)
 
@@ -49,7 +49,7 @@ class GameRepository @Inject constructor(
                 players = listOf(
                     player,
                     otherPlayer
-                ) // TODO: DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
+                ) // DET HER ER DE LOKALE SPILLERE I GAMESTATELOCAL
             )
         }
     }
@@ -82,20 +82,11 @@ class GameRepository @Inject constructor(
                 setLocalGameState(nextState)
 
                 Log.i("GameRepository", "SHOWING STATE")
-                /*if (gameStateLocal.value.chosenAnswer == "") { //TODO: This needs to be false, idk why we are doing this here and not in nextquestion()
-                    Log.i("GameRepository", "No answer was chosen. ")
-                    updateTuple(
-                        SpaceName.ANSWER,
-                        gameStateLocal.value.chosenAnswer,
-                        gameStateLocal.value.userUUID.toString()
-                    )
-                }*/
-
 
                 nextState = tupleSpaceConnection.queryGameStateAsString(GameState.FINAL.displayName)
                 setLocalGameState(nextState)
 
-                updatePlayerScore() // TODO: This should be turned on! ANTIN DET HER ER TIL DIG <------------------------
+                updatePlayerScore()
                 Log.i("GameRepository", "Player[0] score updated to: ${gameStateLocal.value.players[0].score}")
             }
         }

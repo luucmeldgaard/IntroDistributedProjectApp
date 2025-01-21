@@ -123,7 +123,7 @@ fun RoundView(
 
             LinearProgressIndicator(
                 progress = {
-                    (roundUiModel.secondsLeft.toFloat() / 30f).coerceIn(0f, 1f) // TODO: Dont hardcode 30
+                    (roundUiModel.secondsLeft.toFloat() / 30f).coerceIn(0f, 1f)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 color = if(roundUiModel.secondsLeft > 10) Color.Green else Color.Red,
@@ -217,7 +217,7 @@ fun RoundView(
                             text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp,
                             color = if (roundUiModel.currentState == GameState.SHOWING) {
                                 if (index == roundUiModel.correctAnswer) {
-                                    Color.Black //TODO: Update these colors to green and red?
+                                    Color.Black
                                 } else {
                                     Color.White
                                 }

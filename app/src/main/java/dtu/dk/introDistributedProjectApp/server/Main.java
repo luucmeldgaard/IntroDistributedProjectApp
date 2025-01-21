@@ -279,6 +279,7 @@ class ScoreboardThread implements Runnable {
                 Thread.sleep(3000);
                 while (playerConnectionSpace.size() < 2) {
                     Thread.sleep(3000);
+                    scoreBoardSpace.getAll(new FormalField(Integer.class), new FormalField(String.class));
                 }
                 gameStateSpace.getAll(new FormalField(String.class));
                 gameStateSpace.put("QUESTIONS");

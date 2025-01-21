@@ -41,8 +41,6 @@ import dtu.dk.introDistributedProjectApp.ui.theme.UrbanDictionaryYellow
 fun RoundView(
     roundViewModel: RoundViewModel,
 ) {
-
-    //val roundViewModel: RoundViewModel by viewModels()
     val roundUiModel by roundViewModel.uiModel.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -67,11 +65,6 @@ fun RoundView(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                /*
-                IconButton(onClick = { navController.navigate(Screen.StartScreen.route) }) {
-                    Icon(Icons.TwoTone.Menu, contentDescription = null, tint = Color.White)}
-                 */
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -191,11 +184,8 @@ fun RoundView(
                         colors = getButtonColors(index), // Button color logic
                         contentPadding = PaddingValues(vertical = 4.dp),
                         onClick = {
-
                             if (roundUiModel.currentState == GameState.ANSWERING) {
                                 roundViewModel.onAnswerSelected(index)
-                            } else {
-                                Log.e("roundView", "Button was clicked outside of answering state")
                             }
                             roundViewModel.uiModel.value.selectedAnswer = index
                         },
@@ -204,18 +194,6 @@ fun RoundView(
                         Text(
                             text = roundUiModel.currentQuestion.answers[index], fontSize = 14.sp,
                             color = Color.DarkGray
-                            /*
-                            color = if (roundUiModel.currentState == GameState.SHOWING) {
-                                if (index == roundUiModel.correctAnswer) {
-                                    Color.Black
-                                } else {
-                                    Color.White
-                                }
-                            } else {
-                                Color.White
-                            }
-
-                             */
                         )
                     }
                 }

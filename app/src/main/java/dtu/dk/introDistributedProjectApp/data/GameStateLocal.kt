@@ -11,5 +11,6 @@ data class GameStateLocal(
     val state: GameState = GameState.LOCAL_START,
     val chosenAnswer: String = "",
     val correctAnswer: Int = -1,
-    val userUUID: UUID = UUID.randomUUID()
+    val userUUID: UUID = UUID.randomUUID(),
+    val host: Boolean = false
 )

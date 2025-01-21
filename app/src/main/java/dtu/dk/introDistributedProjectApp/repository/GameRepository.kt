@@ -189,7 +189,6 @@ class GameRepository @Inject constructor(
             throw Exception("Boop");
         }
 
-        Log.i("GameRepository", "Updating tuple in space: $spaceName" + " This should be called twice a round atm") //TODO: Remove log
         tupleSpaceConnection.updateTuple(spaceName, *items)
     }
 

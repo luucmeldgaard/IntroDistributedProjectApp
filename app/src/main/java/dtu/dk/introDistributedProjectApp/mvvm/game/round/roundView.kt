@@ -125,7 +125,7 @@ fun RoundView(
                     .padding(horizontal = 14.dp),
             ) {
                 Text(
-                    text = "Question " + roundUiModel.currentRound.toString(),
+                    text = "Guess the word",
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,

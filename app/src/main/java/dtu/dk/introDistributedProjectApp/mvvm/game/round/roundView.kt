@@ -126,7 +126,7 @@ fun RoundView(
                     (roundUiModel.secondsLeft.toFloat() / 30f).coerceIn(0f, 1f) // TODO: Dont hardcode 30
                 },
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.Green,
+                color = if(roundUiModel.secondsLeft > 10) Color.Green else Color.Red,
                 trackColor = Color.LightGray,
             )
 

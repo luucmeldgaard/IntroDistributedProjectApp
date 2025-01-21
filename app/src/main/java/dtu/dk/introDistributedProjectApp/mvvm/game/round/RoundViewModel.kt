@@ -3,7 +3,6 @@ package dtu.dk.introDistributedProjectApp.mvvm.game.round
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
@@ -73,38 +72,6 @@ class RoundViewModel @Inject constructor(
                 )
             )
         }
-
-        /*if (gameStateLocal.state != currentState) {
-            if (currentState == GameState.SHOWING && gameStateLocal.state == GameState.ANSWERING) {
-                clear()
-            }
-        }
-
-        for (player in gameStateLocal.players) {
-            if (player.id == gameStateLocal.userUUID.toString()) {
-                _uiModel.update { currentState ->
-                    currentState.copy(
-                        currentScore = player.score
-                    )
-                }
-            }
-        }
-
-        for (i in 0 until gameStateLocal.question.answers.size) {
-            if (gameStateLocal.correctAnswer == uiModel.value.currentQuestion.answers[i]) {
-                _uiModel.update { currentState ->
-                    currentState.copy(
-                        correctAnswer = i + 1
-                    )
-                }
-            }
-        }
-
-        _uiModel.update { currentState ->
-            currentState.copy(
-                currentQuestion = gameStateLocal.question
-            )
-        }*/
     }
 
     private fun runTimer() {

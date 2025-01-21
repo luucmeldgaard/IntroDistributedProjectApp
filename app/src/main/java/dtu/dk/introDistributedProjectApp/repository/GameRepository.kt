@@ -5,21 +5,21 @@ import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
+import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.data.SpaceName
 import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
+import dtu.dk.introDistributedProjectApp.server.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.update
-import dtu.dk.introDistributedProjectApp.data.Player
-import dtu.dk.introDistributedProjectApp.server.*
 
 @Singleton
 class GameRepository @Inject constructor(

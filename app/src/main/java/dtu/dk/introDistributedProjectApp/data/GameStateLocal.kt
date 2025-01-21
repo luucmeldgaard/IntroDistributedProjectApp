@@ -1,8 +1,6 @@
 package dtu.dk.introDistributedProjectApp.data
 
 import kotlinx.serialization.Serializable
-import java.util.ArrayDeque
-import java.util.Queue
 import java.util.UUID
 
 @Serializable

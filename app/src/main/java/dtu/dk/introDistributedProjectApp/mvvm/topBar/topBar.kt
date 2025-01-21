@@ -47,11 +47,4 @@ fun TopBar(
 
         }
     }
-    /*Box(
-        modifier = Modifier
-            .height(56.dp)
-            .fillMaxWidth()
-            .background(Color(0xFF3264DE))
-    ) {
-    }*/
 }

@@ -6,7 +6,6 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.Space;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

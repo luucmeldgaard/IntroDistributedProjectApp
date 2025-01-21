@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static java.lang.Thread.sleep;
 public class AnswerGetter {
     private Space space;
     private CountDownLatch latch = new CountDownLatch(1);

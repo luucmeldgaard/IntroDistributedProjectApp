@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         gameRepository.removeMeFromGame()
-        super.onDestroy();
+        super.onDestroy()
     }
 }
 
@@ -81,7 +81,7 @@ fun MainNavHost(
     scoreboardViewModel: ScoreboardViewModel,
     gameRepository: GameRepository
 ) {
-    val navController = rememberNavController();
+    val navController = rememberNavController()
 
     Scaffold(
         content = { innerPadding ->
@@ -97,7 +97,7 @@ fun MainNavHost(
                             Greeting("Android")
                         }
                         composable(route = Screen.GameScreen.route) {
-                            RoundView(navController, roundViewModel)
+                            RoundView(roundViewModel)
                         }
                         composable(route = Screen.StartScreen.route) {
                             StartView(navController, startViewModel)

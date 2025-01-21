@@ -1,9 +1,5 @@
 package dtu.dk.introDistributedProjectApp.mvvm.game.round
 
-import android.app.Application
-import android.content.Context
-import android.media.Image
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,24 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.twotone.Favorite
-import androidx.compose.material.icons.twotone.Menu
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -45,31 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dtu.dk.introDistributedProjectApp.Greeting
 import dtu.dk.introDistributedProjectApp.R
 import dtu.dk.introDistributedProjectApp.data.GameState
-import dtu.dk.introDistributedProjectApp.mvvm.Screen
-import dtu.dk.introDistributedProjectApp.repository.GameRepository
-import dtu.dk.introDistributedProjectApp.ui.theme.AirForceBlue
-import dtu.dk.introDistributedProjectApp.ui.theme.ChineseViolet
-import dtu.dk.introDistributedProjectApp.ui.theme.Coral
-import dtu.dk.introDistributedProjectApp.ui.theme.IntroDistributedProjectAppTheme
-import dtu.dk.introDistributedProjectApp.ui.theme.MyrtleGreen
 import dtu.dk.introDistributedProjectApp.ui.theme.SpaceCadet
-import dtu.dk.introDistributedProjectApp.ui.theme.Straw
 import dtu.dk.introDistributedProjectApp.ui.theme.UrbanDictionaryYellow
 
 @Composable
 fun RoundView(
-    navController: NavController,
     roundViewModel: RoundViewModel,
 ) {
 

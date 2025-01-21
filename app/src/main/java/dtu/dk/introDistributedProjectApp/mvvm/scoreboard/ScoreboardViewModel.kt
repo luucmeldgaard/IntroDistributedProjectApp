@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
 import dtu.dk.introDistributedProjectApp.data.Player
-import dtu.dk.introDistributedProjectApp.mvvm.game.round.RoundUiModel
 import dtu.dk.introDistributedProjectApp.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

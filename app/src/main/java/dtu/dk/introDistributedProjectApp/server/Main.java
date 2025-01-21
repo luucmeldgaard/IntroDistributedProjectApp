@@ -1,15 +1,21 @@
 package dtu.dk.introDistributedProjectApp.server;
 
-import dtu.dk.introDistributedProjectApp.server.Services.API;
-import dtu.dk.introDistributedProjectApp.server.Services.Params;
-import dtu.dk.introDistributedProjectApp.server.Services.WordDefinition;
-import org.jspace.*;
+import static java.lang.Thread.sleep;
+
+import org.jspace.ActualField;
+import org.jspace.FormalField;
+import org.jspace.RandomSpace;
+import org.jspace.SequentialSpace;
+import org.jspace.Space;
+import org.jspace.SpaceRepository;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Thread.sleep;
+import dtu.dk.introDistributedProjectApp.server.Services.API;
+import dtu.dk.introDistributedProjectApp.server.Services.Params;
+import dtu.dk.introDistributedProjectApp.server.Services.WordDefinition;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -62,6 +68,16 @@ class PlayerConnectionThread implements Runnable {
     @Override
     public void run() {
         try {
+            while (playerConnectionSpace.size() < 2) {
+                sleep(1000);
+            }
+            gameStateSpace.put("QUESTIONS");
+
+            /*
+            if (playerConnectionSpace.size()>1) {
+                gameStateSpace.getAll(new FormalField(String.class));
+                gameStateSpace.put("SHOWING");
+            }
             while (true) {
                 if (playerConnectionSpace.size() > 1
                         && gameStateSpace.getp(new ActualField("STOP")) != null) {
@@ -76,7 +92,7 @@ class PlayerConnectionThread implements Runnable {
                     System.out.println("Setting game state to STOP; Game is paused");
                 }
                 sleep(1000); // Simulate delay
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,23 +107,6 @@ class QuestionThread implements Runnable {
     public QuestionThread(RandomSpace questionSpace, SequentialSpace gameStateSpace) {
         this.questionSpace = questionSpace;
         this.gameStateSpace = gameStateSpace;
-    }
-
-    @Override
-    public void run() {
-
-        try {
-            while (true) {
-                gameStateSpace.query(new ActualField("QUESTIONS"));
-                getNewQnA(questionSpace);
-                gameStateSpace.getAll(new FormalField(String.class));
-                gameStateSpace.put("ANSWERING");
-                System.out.println("Setting game state to ANSWERING");
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static void getNewQnA(RandomSpace questionSpace) throws InterruptedException {
@@ -152,6 +151,23 @@ class QuestionThread implements Runnable {
 
         // Replace all case-insensitive occurrences of `toCleanFor` with "________"
         return matcher.replaceAll("________");
+    }
+
+    @Override
+    public void run() {
+
+        try {
+            while (true) {
+                gameStateSpace.query(new ActualField("QUESTIONS"));
+                getNewQnA(questionSpace);
+                gameStateSpace.getAll(new FormalField(String.class));
+                gameStateSpace.put("ANSWERING");
+                System.out.println("Setting game state to ANSWERING");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 
@@ -218,6 +234,15 @@ class ScoreboardThread implements Runnable {
         this.maxRounds = maxRounds;
     }
 
+    private static Integer calculateScore(Long responseTime, Integer waitTime) {
+
+        Long waitTimeInMillis = waitTime * 1000L;
+        // Perform the calculation using floating-point division
+        double score = Math.max(0, 100 - ((double) responseTime / waitTimeInMillis) * 100);
+        // Cast to Integer and return
+        return (int) score;
+    }
+
     @Override
     public void run() {
 
@@ -252,6 +277,9 @@ class ScoreboardThread implements Runnable {
 
 
                 Thread.sleep(3000);
+                while (playerConnectionSpace.size() < 2) {
+                    Thread.sleep(3000);
+                }
                 gameStateSpace.getAll(new FormalField(String.class));
                 gameStateSpace.put("QUESTIONS");
                 System.out.println("Setting game state to QUESTIONS");
@@ -264,15 +292,6 @@ class ScoreboardThread implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static Integer calculateScore(Long responseTime, Integer waitTime) {
-
-        Long waitTimeInMillis = waitTime * 1000L;
-        // Perform the calculation using floating-point division
-        double score = Math.max(0, 100 - ((double) responseTime / waitTimeInMillis) * 100);
-        // Cast to Integer and return
-        return (int) score;
     }
 
 }

@@ -4,32 +4,34 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkProperties
-import android.net.wifi.WifiManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dtu.dk.introDistributedProjectApp.data.GameState
 import dtu.dk.introDistributedProjectApp.data.GameStateLocal
+import dtu.dk.introDistributedProjectApp.data.Player
 import dtu.dk.introDistributedProjectApp.data.Question
 import dtu.dk.introDistributedProjectApp.data.SpaceName
 import dtu.dk.introDistributedProjectApp.data.TupleSpaceConnection
 import dtu.dk.introDistributedProjectApp.server.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jspace.RandomSpace
+import org.jspace.SequentialSpace
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.Inet4Address
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.update
-import dtu.dk.introDistributedProjectApp.data.Player
-import dtu.dk.introDistributedProjectApp.server.*
-import java.net.HttpURLConnection
-import java.net.NetworkInterface
-import android.text.format.Formatter
-import java.net.Inet4Address
+
 
 @Singleton
 class GameRepository @Inject constructor(
@@ -74,18 +76,33 @@ class GameRepository @Inject constructor(
         }
     }
 
+    fun isInternetAvailable(context: Context): Boolean {
+        return try {
+            val url = URL("https://www.google.com")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connectTimeout = 5000 // 5 seconds timeout
+            connection.connect()
+            connection.responseCode == 200 // HTTP OK
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun joinGame(ip: String) {
+
+        Log.i("GameRepository", "Connection: ${isInternetAvailable(context).toString()}")
+
         CoroutineScope(Dispatchers.IO).launch { //TODO: everything inside this coroutine shouldn't be sequential
 
             if (gameStateLocal.value.host) {
-                Log.i("GameRepository", "Host is joining game using '10.0.2.2'") // TODO: The IP might need to change to 'localhost'
+                Log.i("GameRepository", "Host is joining game using 'localhost'") // TODO: The IP might need to change to 'localhost' | 10.0.2.2
                 launchServer()
-                Thread.sleep(5000)
+                delay(5000L)
                 initializeTupleSpaceConnection("localhost")
             }
             else {
                 Log.i("GameRepository", "Guest is joining game using IP: $ip")
-                initializeTupleSpaceConnection(ip) // TODO: The IP might need to change from 10.0.2.2 to localhost when launched on actual device
+                initializeTupleSpaceConnection(ip) // The entered host ip from start(join) screen
             }
 
             for (p in gameStateLocal.value.players) {
@@ -162,7 +179,7 @@ class GameRepository @Inject constructor(
     }
 
     private fun launchServer() {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             try {
                 Main.main(arrayOf())
             } catch (e: Exception) {

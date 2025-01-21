@@ -211,13 +211,13 @@ fun RoundView(
                                 roundViewModel.onAnswerSelected(index)
                             }
                         },
-                        enabled = true // Always enabled to retain the button appearance
+                        enabled = true//roundUiModel.currentState == GameState.ANSWERING // Always enabled to retain the button appearance. Should probably be disabled
                     ) {
                         Text(
                             text = roundUiModel.currentQuestion.answers[index], fontSize = 12.6.sp,
                             color = if (roundUiModel.currentState == GameState.SHOWING) {
                                 if (index == roundUiModel.correctAnswer) {
-                                    Color.Black
+                                    Color.Black //TODO: Update these colors to green and red?
                                 } else {
                                     Color.White
                                 }

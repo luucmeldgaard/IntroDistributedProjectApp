@@ -239,12 +239,6 @@ class GameRepository @Inject constructor(
 
     @Throws(InterruptedException::class)
     fun updateTuple(spaceName: SpaceName, vararg items: Any) {
-        if(
-            spaceName == SpaceName.ANSWER && false
-        ){
-            throw Exception("Boop");
-        }
-
         tupleSpaceConnection.updateTuple(spaceName, *items)
     }
 
@@ -346,7 +340,7 @@ class GameRepository @Inject constructor(
             currentState.copy(chosenAnswer = answer)
         }
         updateTuple(SpaceName.ANSWER, answer, gameStateLocal.value.userUUID.toString())
-        updateTuple(SpaceName.ANSWER, answer, "tester2")
+        //updateTuple(SpaceName.ANSWER, answer, "tester2")
         Log.i("GameRepository", "Chosen answer was changed from: '$currentChosenAnswer' to ${_gameStateLocal.value.chosenAnswer}")
     }
 

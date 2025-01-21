@@ -36,7 +36,7 @@ public class Main {
         repository.add("gameStateSpace", gameStateSpace);
 
         // Open a gate for remote connections
-        repository.addGate("tcp://localhost:9001/?keep");
+        repository.addGate("tcp://0.0.0.0:9001/?keep");
 
         // Start threads
         new Thread(new PlayerConnectionThread(playerConnectionSpace, gameStateSpace, scoreboardSpace)).start();

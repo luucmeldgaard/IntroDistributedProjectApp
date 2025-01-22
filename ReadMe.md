@@ -1,7 +1,7 @@
 There are two ways to run this app:
 To run the server separately, either
-a. From it's own repo, or
-b. From its' location in this repo, at
+- From it's own repo, or
+- From its' location in this repo, at
 ```app/src/main/java/dtu/dk/introDistributedProjectApp/server/Main.java```
 Then, run at least two clients (including the one that is potentially hosting) and make them join.
 

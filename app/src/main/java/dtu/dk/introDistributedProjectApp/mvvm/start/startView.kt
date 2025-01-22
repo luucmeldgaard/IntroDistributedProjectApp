@@ -144,7 +144,9 @@ fun StartView(
             FilledTonalButton(
                 onClick = {
                     buttonClicked = true
-                    viewModel.joinGame(enteredIP, enteredName)
+                    if (enteredIP.isNotEmpty() && enteredName.isNotEmpty()) {
+                        viewModel.joinGame(enteredIP, enteredName)
+                    }
                 },
                 enabled = !buttonClicked
             ) {

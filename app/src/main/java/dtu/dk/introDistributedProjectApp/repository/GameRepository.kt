@@ -87,17 +87,22 @@ class GameRepository @Inject constructor(
 
         CoroutineScope(Dispatchers.IO).launch { //TODO: everything inside this coroutine shouldn't be sequential
 
+            var success = false
             if (gameStateLocal.value.host) {
                 Log.i("GameRepository", "Host is joining game using 'localhost'") // TODO: The IP might need to change to 'localhost' | 10.0.2.2
                 launchServer()
                 //delay(5000L)
-                initializeTupleSpaceConnection("0.0.0.0")
+                success = initializeTupleSpaceConnection("0.0.0.0")
             }
             else {
                 Log.i("GameRepository", "Guest is joining game using IP: $ip")
-                initializeTupleSpaceConnection(ip) // The entered host ip from start(join) screen
+                success = initializeTupleSpaceConnection(ip) // The entered host ip from start(join) screen
             }
 
+            if (!success) {
+                Log.e("GameRepository", "Failed to initialize TupleSpaceConnection")
+                return@launch
+            }
 
             _gameStateLocal.update { currentState ->
                 currentState.copy(
@@ -214,13 +219,25 @@ class GameRepository @Inject constructor(
 
     }
 
-    private suspend fun initializeTupleSpaceConnection(ip: String) {
+    private suspend fun initializeTupleSpaceConnection(ip: String): Boolean {
         try {
             tupleSpaceConnection = TupleSpaceConnection(ip)
             Log.i("GameRepository", "TupleSpaceConnection initialized successfully")
+            _gameStateLocal.update { currentState ->
+                currentState.copy(
+                    joinError = false
+                )
+            }
         } catch (e: IOException) {
             Log.e("GameRepository", "Failed to initialize TupleSpaceConnection: ${e.message}")
+            _gameStateLocal.update { currentState ->
+                currentState.copy(
+                    joinError = true
+                )
+            }
         }
+
+        return gameStateLocal.value.joinError
     }
 
     private suspend fun <T> retrieveItemFromSpace(spaceName: SpaceName, vararg types: Class<*>): List<T>? {

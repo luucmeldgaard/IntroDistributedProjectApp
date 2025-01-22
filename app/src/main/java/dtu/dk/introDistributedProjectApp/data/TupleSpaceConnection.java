@@ -35,7 +35,7 @@ public class TupleSpaceConnection {
         Log.i("TupleSpaceConnection", "Hello from TupleSpaceConnection");
 
         REMOTE_URI = "tcp://" + ip + ":9001/";
-
+        int tries = 10;
         while (true) {
             ExecutorService executor = null;
             try {
@@ -57,6 +57,12 @@ public class TupleSpaceConnection {
             } finally {
                 if (executor != null) {
                     executor.shutdown();
+                }
+                Thread.sleep(240);
+                tries -= 1;
+                if (tries == 0) {
+                    Log.e("TupleSpaceConnection", "Failed to connect after 10 tries. Exiting...");
+                    throw new IOException("Failed to connect to remote space");
                 }
             }
 

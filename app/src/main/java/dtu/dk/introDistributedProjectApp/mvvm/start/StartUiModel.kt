@@ -4,4 +4,5 @@ data class StartUiModel (
     val createGame: Boolean = false,
     val joinGame: Boolean = false,
     val ipAddress: String = "",
+    val displayJoinError: Boolean = false
 )

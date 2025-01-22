@@ -107,6 +107,14 @@ fun StartView(
                     .padding(4.dp)
             )
 
+            if (startUiModel.displayJoinError) {
+                Text(
+                    text = "Could not join game. Try again",
+                    color = Coral,
+                    fontSize = 20.sp,
+                )
+            }
+
             TextField(
                 value = enteredName,
                 onValueChange = { enteredName = it },
@@ -139,12 +147,12 @@ fun StartView(
                         .padding(16.dp)
                 )
 
-
-
             FilledTonalButton(
                 onClick = {
                     buttonClicked = true
-                    viewModel.joinGame(enteredIP, enteredName)
+                    if (enteredIP.isNotEmpty() && enteredName.isNotEmpty()) {
+                        viewModel.joinGame(enteredIP, enteredName)
+                    }
                 },
                 enabled = !buttonClicked
             ) {

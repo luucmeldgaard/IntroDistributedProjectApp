@@ -1,3 +1,35 @@
+Known issues related to building with Gradle:
+ - Make sure to sync with gradle
+ - You may need to change your Gradle version to 8.10.2
+ - You should be using Android Studio 2024.2.2 or newer
+ - If you are having issues with Java 23, downgrading to 21 may help:
+'''
+   compileOptions {
+   sourceCompatibility = JavaVersion.VERSION_23
+   targetCompatibility = JavaVersion.VERSION_23
+   }
+'''
+Can be changed to
+'''
+   compileOptions {
+   sourceCompatibility = JavaVersion.VERSION_21
+   targetCompatibility = JavaVersion.VERSION_21
+   }
+'''
+
+and
+'''
+kotlinOptions {
+jvmTarget = "23"
+}
+'''
+to
+'''
+kotlinOptions {
+jvmTarget = "21"
+}
+'''
+
 There are two ways to run this app:
 Run the server separately, either
     a. From it's own repo, or

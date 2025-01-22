@@ -9,7 +9,7 @@ Then, run at least two clients (including the one that is potentially hosting) a
 
 Minimum number of players can be configured easily in the source code, but playing alone is lonely.
 
-If running the client in android studio to an external server on the same computer, the desired IP address is by default 10.0.2.2
+If running the client in android studio to an external server on the same computer, the desired IP address is by default 10.0.2.2. Otherwise, you are in a GitHub repo and know how to find your own IP address
 
 Known issues related to building with Gradle:
  - Make sure to sync with gradle

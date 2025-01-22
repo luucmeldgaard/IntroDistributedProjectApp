@@ -4,8 +4,9 @@ To run the server separately, either
 - From its' location in this repo, at
 ```app/src/main/java/dtu/dk/introDistributedProjectApp/server/Main.java```
 
-
 Then, run at least two clients (including the one that is potentially hosting) and make them join.
+
+Two players can have the same name, as they are not identified by name (But the scoreboard will be a little confusing)
 
 Minimum number of players can be configured easily in the source code, but playing alone is lonely.
 

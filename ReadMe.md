@@ -3,6 +3,8 @@ To run the server separately, either
 - From it's own repo, or
 - From its' location in this repo, at
 ```app/src/main/java/dtu/dk/introDistributedProjectApp/server/Main.java```
+
+
 Then, run at least two clients (including the one that is potentially hosting) and make them join.
 
 Minimum number of players can be configured easily in the source code, but playing alone is lonely.

@@ -1,3 +1,5 @@
+A trailer can be found on YouTube: https://youtu.be/Nh5SmnCYvQM
+
 There are two ways to run this app:
 To run the server separately, either
 - From it's own repo, or
